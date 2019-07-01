@@ -19,3 +19,4 @@ E:\Work\FtpUpLoad\UpLoad\obj\Debug\UpLoad.csproj.CoreCompileInputs.cache
 E:\Work\FtpUpLoad\UpLoad\obj\Debug\UpLoad.exe
 E:\Work\FtpUpLoad\UpLoad\obj\Debug\UpLoad.pdb
 E:\Work\FtpUpLoad\UpLoad\obj\Debug\UpLoad.UserControl1.resources
+C:\Users\zh96637\source\repos\UpLoad\UpLoad\obj\Debug\UpLoad.UserControl1.resources

@@ -10,64 +10,94 @@ using System.Windows.Forms;
 using System.IO;
 using System.Net;
 using System.Threading;
-using System.Configuration;
+using System.Diagnostics;
 
 namespace UpLoad
 {
     public partial class Form1 : Form
     {
-        private static string FTPCONSTR = "ftp://192.168.0.107";
+        private static string FTPCONSTR = "ftp://192.168.238.1";
         private static string[] strpath;
         private static string pathStr = "/data/";
         private static string pathStr1 = "data";
-        public delegate bool MethodCaller(string path, string remotePath, Action<int, int> updateProgress);//定义个代理 
+        public delegate bool MethodCaller(string path, string remotePath, Action<UserControl1, int, int> updateProgress);//定义个代理 
+
+        public delegate bool tempChange(MethodCaller mc, IAsyncResult ir, string path, Stopwatch time);
+
+        public static Form1 form1;
+
+        //private static Form1 _Singleton = new Form1();
+        //private static object Singleton_Lock = new object();
+        //public static Form1 GetInstance()
+        //{
+        //    if (_Singleton == null)
+        //    {
+        //        lock (Singleton_Lock)
+        //        {
+        //            if (_Singleton == null)
+        //            {
+        //                _Singleton = new Form1();
+        //            }
+        //        }
+        //    }
+        //    return _Singleton;
+        //}
+
+        //public event tempChange OntempChange;
+        //string temp;
+        //public string Temp
+        //{
+        //    get
+        //    {
+        //        return temp;
+        //    }
+        //    set
+        //    {
+        //        if (temp != value)
+        //        {
+        //            //           OntempChange(this, new EventArgs());
+
+        //            temp = value;
+        //            MessageBox.Show("change");
+        //        }
+        //    }
+        //}
+
         public Form1()
         {
             InitializeComponent();
+            form1 = this;
         }
+
 
         private void Uploadbutton_Click(object sender, EventArgs e)
         {
-            var path = strpath;
-            //try
-            //{
-            //    for (int i = 0; i < path.Length; i++)
-            //    {
-            //        var filename = path[i].ToString();
-            //        CheckForIllegalCrossThreadCalls = false;
-            //        //实例化事件类
-            //        EntrustHandle fo = new EntrustHandle(filename);
-            //        var myUpEventsHandler = new EntrustHandle.myUpEventsHandler(this.RunsOnWorkerThread);
-            //        fo.startUpEvent += myUpEventsHandler;
-            //        //      fo.startUpEvent += new EntrustHandle.myUpEventsHandler(this.RunsOnWorkerThread); //注册事件
-            //        //      IAsyncResult result = fo.myUpEventsHandler.BeginInvoke("m", "n", null, null);
-            //        fo.mythreadStart(); //调用类的方法
-            //        FileInfo p = new FileInfo(path[i].ToString());
-            //        //        uploadSQL(p.Name);  //上传到库
-            //    }
-            //    //label1.Text = "上传成功";
-            //}
-            //catch
-            //{
-            //    string s = "";
-            //    for (int x = 0; x < path.Length; x++)
-            //    {
-            //        FileInfo file = new FileInfo(path[x].ToString());
-            //        s += file.Name + " ";
-            //    }
-            //    //   this.lbl_ftpStakt.Text = "上传失败";
-            //    MessageBox.Show(s.ToString() + " 上传失败", "提示");
-            //}
+          
+            Thread thread = new Thread(Test);
+            thread.Start();           
+        }
 
-            Action<int, int> updateProgress = progressBarShow;
+        public void Test()
+        {
+            
+
+            var path = strpath;
+            Action<UserControl1, int, int> updateProgress = progressBarShow;
             List<System.Diagnostics.Stopwatch> time = new List<System.Diagnostics.Stopwatch>();
             CheckForIllegalCrossThreadCalls = false;
+            List<tempChange> tcs = new List<tempChange>();
+            List<IAsyncResult> tcsRet = new List<IAsyncResult>();
             for (int i = 0; i < path.Length; i++)
             {
                 var splitFilePath = SplitFile(path[i]);
                 CreateControl(splitFilePath);
                 List<MethodCaller> mcs = new List<MethodCaller>();
                 List<IAsyncResult> ret = new List<IAsyncResult>();
+                if (splitFilePath == null)
+                {
+                    splitFilePath = new List<string>();
+                    splitFilePath.Add(path[i]);
+                }
                 for (int j = 0; j < splitFilePath.Count; j++)
                 {
                     time.Add(new System.Diagnostics.Stopwatch());
@@ -78,35 +108,76 @@ namespace UpLoad
                     IAsyncResult rets = mcs[j].BeginInvoke(splitFilePath[j], pathStr1, updateProgress, null, null);
                     ret.Add(rets);
                 }
+              
                 for (int j = 0; j < mcs.Count; j++)
                 {
-                    //    IAsyncResult ret = mcs[j].BeginInvoke(splitFilePath[j], pathStr1, updateProgress, null, null);
-                    bool result = mcs[j].EndInvoke(ret[j]);
-                    //     var result = FTPHelper.FtpMyProgressBar();
-                    time[j].Stop();
-                    if (result)
-                    {
-                        //    label1.Text = time.Elapsed.TotalSeconds.ToString();
-                //        listBox1.Items.Add(splitFilePath[j] + ": 上传成功" + "  耗时：" + time[j].Elapsed.TotalSeconds.ToString());
-                        ChangeControl(splitFilePath[j],"上传成功");
-                        File.Delete(splitFilePath[j]);
-                        //       MessageBox.Show("上传成功!");
+                    tempChange tc = new tempChange(UpdateResult);
+                    tcs.Add(tc);
+                    IAsyncResult rets = tcs[j].BeginInvoke(mcs[j], ret[j], splitFilePath[j], time[j], null, null);
+                    tcsRet.Add(rets);
+                    ////    IAsyncResult ret = mcs[j].BeginInvoke(splitFilePath[j], pathStr1, updateProgress, null, null);
+                    //bool result = mcs[j].EndInvoke(ret[j]);
+                    ////     var result = FTPHelper.FtpMyProgressBar();
+                    //time[j].Stop();
+                    //if (result)
+                    //{
+                    //    //    label1.Text = time.Elapsed.TotalSeconds.ToString();
+                    //    //        listBox1.Items.Add(splitFilePath[j] + ": 上传成功" + "  耗时：" + time[j].Elapsed.TotalSeconds.ToString());
+                    //    ChangeControl(splitFilePath[j], "上传成功", time[j].Elapsed.TotalSeconds.ToString("f2"));
+                    //    File.Delete(splitFilePath[j]);
+                    //    //       MessageBox.Show("上传成功!");
 
-                    }
-                    else
-                    {
-                        //          listBox1.Items.Add(splitFilePath[j] + ": 上传失败");
-                        ChangeControl(splitFilePath[j], "上传失败");
-                        //            MessageBox.Show("上传失败!");
-                    }
-                    time[j].Reset();
+                    //}
+                    //else
+                    //{
+                    //    //          listBox1.Items.Add(splitFilePath[j] + ": 上传失败");
+                    //    ChangeControl(splitFilePath[j], "上传失败", "0");
+                    //    //            MessageBox.Show("上传失败!");
+                    //}
+                    //time[j].Reset();
                 }
-           
             }
+            for (int i = 0; i < tcs.Count; i++)
+            {
+                var ret = tcs[i].EndInvoke(tcsRet[i]); ;
+            }
+            FileInfo fileInfo = new FileInfo(strpath[0]);
+            File.Delete(@"D:/TestHzy/data/" + fileInfo.Name);           
+            
             MessageBox.Show("上传结束!");
+            var newTime = new Stopwatch();
+            newTime.Start();
+ //           listBox2.Items.Add("开始：" + newTime.Elapsed.TotalSeconds.ToString("f2") + " s");
+            var mr = new MethodCaller(RunsOnWorkerThread);
+            mr(strpath[0], pathStr1, progressBarShow);
+            newTime.Stop();
+            listBox2.Items.Add("耗时：" + newTime.Elapsed.TotalSeconds.ToString("f2") + " s");
         }
 
-        public void ChangeControl(string name, string text)
+        public bool UpdateResult(MethodCaller mc, IAsyncResult ir, string splitPath, Stopwatch time)
+        {
+            bool result = mc.EndInvoke(ir);
+            time.Stop();
+            if (result)
+            {
+                //    label1.Text = time.Elapsed.TotalSeconds.ToString();
+           //             listBox1.Items.Add(splitPath + ": 上传成功" + "  耗时：" + time.Elapsed.TotalSeconds.ToString());
+                                  ChangeControl(splitPath,"上传成功", time.Elapsed.TotalSeconds.ToString("f2"));
+    //            File.Delete(splitPath);
+                //       MessageBox.Show("上传成功!");
+
+            }
+            else
+            {
+                //          listBox1.Items.Add(splitFilePath[j] + ": 上传失败");
+                              ChangeControl(splitPath , "上传失败", "0");
+                //            MessageBox.Show("上传失败!");
+            }
+            time.Reset();
+            return true;
+        }
+
+        public void ChangeControl(string name, string text, string time)
         {
             foreach (UserControl1 item in listBox1.Controls)
             {
@@ -115,7 +186,9 @@ namespace UpLoad
                 if (item.label1.Text == temp[0])
                 {
                     item.label2.Text = text;
-            //        listBox1.DataSource = ;
+                    if (time != "0")
+                        item.label3.Text = "耗时: " + time + " 秒";
+                    //        listBox1.DataSource = ;
                     break;
                 }
             }
@@ -123,21 +196,12 @@ namespace UpLoad
 
         public void CreateControl(List<string> spliteFile)
         {
-            //int x = 0, y = 0;
-            //for (int i = 0; i < spliteFile.Count; i++)
-            //{
-            //    var fileInfo = new FileInfo(spliteFile[i]);
-            //    UserControl1 cb = new UserControl1();
-            //    string[] temp = fileInfo.Name.Split(new string[] { fileInfo.Extension }, StringSplitOptions.None);
-            //    cb.label1.Text = temp[0];
-            //    cb.label2.Text = "上传中";
-            //    cb.Location = new Point(x, y);
-            //    listBox1.Controls.Add(cb);
-            //    y += cb.Height - 10;
-            //}
-       //     string[] list = new string[] { "张三", "李四", "王五" };
-
             int x = 0, y = 0;
+            if (listBox1.Controls.Count != 0)
+            {
+                x = listBox1.Controls[listBox1.Controls.Count - 1].Location.X;
+                y = listBox1.Controls[listBox1.Controls.Count - 1].Location.Y + listBox1.Controls[0].Height - 10;
+            }
             foreach (string item in spliteFile)
             {
                 UserControl1 cb = new UserControl1();
@@ -146,9 +210,25 @@ namespace UpLoad
                 cb.label1.Text = temp[0];
                 cb.label2.Text = "上传中";
                 cb.Location = new Point(x, y);
-                listBox1.Controls.Add(cb);
+                //                listBox1.Controls.Add(cb);
+                this.Invoke(new EventHandler(delegate
+                {
+                    listBox1.Controls.Add(cb);
+                }));
                 y += cb.Height - 10;
             }
+        }
+
+        private void AddUserControl(Control cb)
+        {
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new MethodInvoker(delegate { AddUserControl(cb); }));
+                return;
+            }
+            //       UserControl1 tb = new UserControl1();
+            //      tb.Text = "test";
+            this.Controls.Add(cb);
         }
 
         public class MyProgressBar : ProgressBar
@@ -181,15 +261,40 @@ namespace UpLoad
             }
         }
 
-        public void progressBarShow(int allbye, int nowByte)
+        public void progressBarShow(UserControl1 uc, int allbye, int nowByte)
         {
-            this.progressBar1.Maximum = allbye;
-            this.progressBar1.Minimum = 0;
-            //        this.progressBar1.Visible = true;
-            progressBar1.Value = nowByte;
-            double percent = Convert.ToDouble(nowByte) / Convert.ToDouble(allbye);
-            string result = percent.ToString("0.00%");
-            label1.Text = result;
+            //foreach (UserControl1 item in listBox1.Controls)
+            //{
+            //    var fileInfo = new FileInfo(name);
+            //    string[] temp = fileInfo.Name.Split(new string[] { fileInfo.Extension }, StringSplitOptions.None);
+            //    if (item.label1.Text == temp[0])
+            //    {
+            //        item.progressBar1.Maximum = allbye;
+            //        item.progressBar1.Minimum = 0;
+            //        //        this.progressBar1.Visible = true;
+            //        item.progressBar1.Value = nowByte;
+            //        //            double percent = Convert.ToDouble(nowByte) / Convert.ToDouble(allbye);
+            //        //         string result = percent.ToString("0.00%");
+            //        //              label1.Text = result;
+            //    }
+            //}
+            uc.progressBar1.Maximum = allbye;
+            uc.progressBar1.Minimum = 0;
+            uc.progressBar1.Value = nowByte;
+        }
+
+        public UserControl1 FindUserContrl(string name)
+        {
+            foreach (UserControl1 item in this.listBox1.Controls)
+            {
+                var fileInfo = new FileInfo(name);
+                string[] temp = fileInfo.Name.Split(new string[] { fileInfo.Extension }, StringSplitOptions.None);
+                if (item.label1.Text == temp[0])
+                {
+                    return item;
+                }
+            }
+            return null;
         }
 
         private void Button2_Click(object sender, EventArgs e)
@@ -233,11 +338,11 @@ namespace UpLoad
             string file = filePaths;
             FileInfo fileInfo = new FileInfo(file);
             string[] temp = fileInfo.Name.Split(new string[] { fileInfo.Extension }, StringSplitOptions.None);
-            string splitFileFormat = @"E:\Test\Copy\" + temp[0] + "_tmp{0}" + fileInfo.Extension;
-            int splitMinFileSize = 600 * 1024 * 1024;
-            int splitFileSize = 200 * 1024 * 1024;
+            string splitFileFormat = @"D:\Test\Copy\" + temp[0] + "_tmp{0}" + fileInfo.Extension;
+            int splitMinFileSize = 800 * 1024 * 1024 ;
+            int splitFileSize = 300 * 1024 * 1024;
             List<string> splitFilePath = new List<string>();
-      //      FileInfo fileInfo = new FileInfo(file);
+            //      FileInfo fileInfo = new FileInfo(file);
             if (fileInfo.Length > splitMinFileSize)
             {
                 MessboxShow("判定结果：需要分隔文件！");
@@ -273,7 +378,7 @@ namespace UpLoad
                             }
                         }
                         isReadingComplete = (input.Length != splitFileSize);
-                        if (!isReadingComplete)              
+                        if (!isReadingComplete)
                         {
                             couter += 1;
                         }
@@ -282,9 +387,8 @@ namespace UpLoad
                 }
             }
             return splitFilePath;
-  //          Console.WriteLine("分隔完成，请按下任意键结束操作。。。");
-  //         Console.ReadKey();
-
+            //          Console.WriteLine("分隔完成，请按下任意键结束操作。。。");
+            //         Console.ReadKey();
         }
 
         /// <summary>
@@ -309,6 +413,7 @@ namespace UpLoad
                                 CombineWriter.Write(TempBytes);
                             }
                         }
+                        File.Delete(file);
                     }
                 }
             }
@@ -320,93 +425,132 @@ namespace UpLoad
         }
 
         //连接ftp上传
-        public void RunsOnWorkerThread(string _filename)
+        public bool RunsOnWorkerThread(string localFullPath, string remoteFilepath, Action<UserControl1, int, int> updateProgress = null)
         {
-            //IAsyncResult result =  BeginInvoke(, 2000, null, null);
-            ////阻塞线程
-            //mt.WaitOne();
+            if (remoteFilepath == null)
+            {
+                remoteFilepath = "";
+            }
+            string newFileName = string.Empty;
+            bool success = true;
+            FileInfo fileInf = new FileInfo(localFullPath);
+            //        Form1.MessboxShow(fileInf.Extension);
+            long allbye = (long)fileInf.Length;
+            if (fileInf.Name.IndexOf("#") == -1)
+            {
+                newFileName = fileInf.Name;
+            }
+            else
+            {
+                newFileName = fileInf.Name;
+            }
+            long startfilesize =FTPHelper.GetFileSize(newFileName, remoteFilepath);
+            string[] temp = fileInf.Name.Split(new string[] { fileInf.Extension }, StringSplitOptions.None);
+            var replaceFileName = temp[0];
 
-            //       Interlocked.Increment(ref flag);    //状态值+1
+            //var userControl = Form1.form1.FindUserContrl(replaceFileName);
+            if (startfilesize >= allbye)
+            {
+                //if (updateprogress != null && usercontrol != null)
+                //{
+                //    updateprogress(usercontrol, (int)allbye, (int)startfilesize);
+                return true;
+                //}
+            }
+            long startbye = startfilesize;
+            ////更新进度
+            //if (updateProgress != null && userControl != null)
+            //{
+            //    updateProgress(userControl, (int)allbye, (int)startfilesize);//更新进度条   
+            //}
 
-            //   this.lbl_ftpStakt.Text = "连接服务器中...";
-            FileInfo fileInf = new FileInfo(_filename);
+            string uri;
+            if (remoteFilepath.Length == 0)
+            {
+                uri = "ftp://" +FTPHelper.FtpServerIP + "/" + newFileName;
+            }
+            else
+            {
+                uri = "ftp://" +FTPHelper.FtpServerIP + "/" + remoteFilepath + "/" + newFileName;
+            }
             FtpWebRequest reqFTP;
-            // 根据uri创建FtpWebRequest对象
-            var filePath = FTPCONSTR + pathStr + fileInf.Name;
-             reqFTP = (FtpWebRequest)FtpWebRequest.Create(new Uri(filePath));
-            // ftp用户名和密码
-            //     reqFTP.Credentials = new NetworkCredential("record", "files");
-            // 默认为true，连接不会被关闭
-            // 在一个命令之后被执行
-
+            // 根据uri创建FtpWebRequest对象 
+            reqFTP = (FtpWebRequest)FtpWebRequest.Create(new Uri(uri));
+            // ftp用户名和密码 
+            reqFTP.Credentials = new NetworkCredential(FTPHelper.FtpUserID, FTPHelper.FtpPassword);
+            // 默认为true，连接不会被关闭 
+            // 在一个命令之后被执行 
             reqFTP.KeepAlive = false;
-            // 指定执行什么命令
-            reqFTP.Method = WebRequestMethods.Ftp.UploadFile;
-            // 指定数据传输类型
+            // 指定执行什么命令 
+            reqFTP.Method = WebRequestMethods.Ftp.AppendFile;
+            // 指定数据传输类型 
             reqFTP.UseBinary = true;
-            // 上传文件时通知服务器文件的大小
+            // 上传文件时通知服务器文件的大小 
             reqFTP.ContentLength = fileInf.Length;
-            //long _length = fileInf.Length;  /////////
-            // 缓冲大小设置为2kb
-            int buffLength = 2048;  ////
+            int buffLength = 2048;// 缓冲大小设置为2kb 
             byte[] buff = new byte[buffLength];
-            int contentLen;
-            // 打开一个文件流 (System.IO.FileStream) 去读上传的文件
+            // 打开一个文件流 (System.IO.FileStream) 去读上传的文件 
             FileStream fs = fileInf.OpenRead();
-
+            Stream strm = null;
             try
             {
-                // 把上传的文件写入流
-                Stream strm = reqFTP.GetRequestStream();
-                // 每次读文件流的2kb
-                contentLen = fs.Read(buff, 0, buffLength);
-                int allbye = (int)fileInf.Length;
-                int startbye = 0;
-                this.progressBar1.Maximum = allbye;
-                this.progressBar1.Minimum = 0;
-                this.progressBar1.Visible = true;
-                //    this.lbl_ftpStakt.Visible = true;
-                //     this.lbl_ftpStakt.Text = "服务器连接中...";
-                // 流内容没有结束
+                // 把上传的文件写入流 
+                strm = reqFTP.GetRequestStream();
+                // 每次读文件流的2kb   
+                fs.Seek(startfilesize, 0);
+                int contentLen = fs.Read(buff, 0, buffLength);
+                // 流内容没有结束 
                 while (contentLen != 0)
                 {
-                    // 把内容从file stream 写入 upload stream
+                    // 把内容从file stream 写入 upload stream 
                     strm.Write(buff, 0, contentLen);
                     contentLen = fs.Read(buff, 0, buffLength);
                     startbye += contentLen;
-                    //                 this.lbl_ftpStakt.Text = "已上传:" + (int)(startbye / 1024) + "KB/" + "总长度:" + (int)(allbye / 1024) + "KB" + " " + " 文件名:" + fileInf.Name;
-                    progressBar1.Value = startbye;
+                    ////更新进度  
+                    //if (updateProgress != null && userControl != null)
+                    //{
+                    //    updateProgress(userControl, (int)allbye, (int)startbye);//更新进度条   
+                    //}
                 }
-                // 关闭两个流
+                // 关闭两个流 
                 strm.Close();
                 fs.Close();
-                this.progressBar1.Visible = false;
-                MessageBox.Show("上传成功!");
-                //   this.lbl_ftpStakt.Text = "上传成功!";
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "上传失败!");
+                var ss = ex.Message;
+                success = false;
+                throw;
             }
-            //   Interlocked.Decrement(ref flag);
-            //   mt.ReleaseMutex();//释放线程
+            finally
+            {
+                if (fs != null)
+                {
+                    fs.Close();
+                }
+                if (strm != null)
+                {
+                    strm.Close();
+                }
+            }
+            return success;
         }
 
         private void Button1_Click(object sender, EventArgs e)
         {
-            string[] list = new string[] { "张三", "李四", "王五" };
+          //  RunsOnWorkerThread(strpath[0]);
+         //   Temp = "test";
+            //string[] list = new string[] { "张三", "李四", "王五" };
 
-            int x = 0, y = 0;
-            foreach (string item in list)
-            {
-                UserControl1 cb = new UserControl1();
-                cb.label1.Text = item;
-                cb.Location = new Point(x, y);
-                listBox1.Controls.Add(cb);
-                y += cb.Height - 10;
-            }
-
-      
+            //int x = 0, y = 0;
+            //foreach (string item in list)
+            //{
+            //    UserControl1 cb = new UserControl1();
+            //    cb.label1.Text = item;
+            //    cb.Location = new Point(x, y);
+            //    listBox1.Controls.Add(cb);
+            //    y += cb.Height - 10;
+            //}
         }
 
         private void Button3_Click(object sender, EventArgs e)
@@ -415,19 +559,19 @@ namespace UpLoad
             //          FileInfo fileInfo = new FileInfo(file);
             //          string[] temp = fileInfo.Name.Split(new string[] { fileInfo.Extension }, StringSplitOptions.None);
             //          string splitFileFormat = @"E:\Test\Copy\" + temp[0] + "_{0}" + fileInfo.Extension;
-            string url = "E:/FTPShare/" + pathStr1 + "/";
+            string url = "D:/TestHzy/" + pathStr1 + "/";
             var filePaths = Directory.GetFiles(url);
             string combineFilePath = "";
             List<string> splitFileFormat = new List<string>();
-            for (int i=0;i<filePaths.Count();i++)
+            for (int i = 0; i < filePaths.Count(); i++)
             {
                 FileInfo fileInfo = new FileInfo(filePaths[i]);
                 splitFileFormat.Add(fileInfo.FullName);
                 string[] temp = fileInfo.Name.Split(new string[] { "_tmp" }, StringSplitOptions.None);
-                combineFilePath = @"E:\Test\Copy\" + temp[0];
+                combineFilePath = @"D:/TestHzy/" + pathStr1 + "/" + temp[0];
             }
-             CombineFiles(splitFileFormat.ToArray(), combineFilePath);
-
+            CombineFiles(splitFileFormat.ToArray(), combineFilePath);
+            MessageBox.Show("合并完成!");
         }
     }
 }

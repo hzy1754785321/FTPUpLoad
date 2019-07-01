@@ -17,7 +17,7 @@ namespace UpLoad
         /// <summary>
         /// Ftp服务器ip
         /// </summary>
-        public static string FtpServerIP = "192.168.0.107";
+        public static string FtpServerIP = "192.168.238.1";
         /// <summary>
         /// Ftp 指定用户名
         /// </summary>
@@ -38,7 +38,7 @@ namespace UpLoad
         /// <param name="remoteFilepath">远程文件所在文件夹路径</param>
         /// <param name="updateProgress">报告进度的处理(第一个参数：总大小，第二个参数：当前进度)</param>
         /// <returns></returns>       
-        public static bool FtpUploadBroken(string localFullPath, string remoteFilepath, Action<int, int> updateProgress = null)
+        public static bool FtpUploadBroken(string localFullPath, string remoteFilepath, Action<UserControl1,int, int> updateProgress = null)
         {
             if (remoteFilepath == null)
             {
@@ -58,15 +58,23 @@ namespace UpLoad
                 newFileName = fileInf.Name;
             }
             long startfilesize = GetFileSize(newFileName, remoteFilepath);
+            string[] temp = fileInf.Name.Split(new string[] { fileInf.Extension }, StringSplitOptions.None);
+            var replaceFileName = temp[0];
+
+            var userControl = Form1.form1.FindUserContrl(replaceFileName);
             if (startfilesize >= allbye)
             {
-                return false;
+                if (updateProgress != null && userControl != null)
+                {
+                    updateProgress(userControl, (int)allbye, (int)startfilesize);
+                    return true;
+                }
             }
             long startbye = startfilesize;
-            //更新进度  
-            //if (updateProgress != null)
+            ////更新进度
+            //if (updateProgress != null && userControl != null)
             //{
-            //    updateProgress((int)allbye, (int)startfilesize);//更新进度条   
+            //    updateProgress(userControl, (int)allbye, (int)startfilesize);//更新进度条   
             //}
 
             string uri;
@@ -92,7 +100,7 @@ namespace UpLoad
             reqFTP.UseBinary = true;
             // 上传文件时通知服务器文件的大小 
             reqFTP.ContentLength = fileInf.Length;
-            int buffLength = 2048;// 缓冲大小设置为2kb 
+            int buffLength = 1 * 1024 * 1024;// 缓冲大小设置为2kb 
             byte[] buff = new byte[buffLength];
             // 打开一个文件流 (System.IO.FileStream) 去读上传的文件 
             FileStream fs = fileInf.OpenRead();
@@ -112,11 +120,16 @@ namespace UpLoad
                     contentLen = fs.Read(buff, 0, buffLength);
                     startbye += contentLen;
                     ////更新进度  
-                    //if (updateProgress != null)
+                    //if (updateProgress != null && userControl != null)
                     //{
-                    //    updateProgress((int)allbye, (int)startbye);//更新进度条   
+                    //    updateProgress(userControl, (int)allbye, (int)startbye);//更新进度条   
                     //}
                 }
+                ////更新进度  
+                //if (updateProgress != null && userControl != null)
+                //{
+                //    updateProgress(userControl, (int)allbye, (int)startbye);//更新进度条   
+                //}
                 // 关闭两个流 
                 strm.Close();
                 fs.Close();
