@@ -25,6 +25,11 @@ namespace UpLoad
             }
 
         }
+
+        private void UserControl1_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("测试点击!");
+        }
     }
 
     

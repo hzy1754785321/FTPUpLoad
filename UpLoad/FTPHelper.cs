@@ -71,7 +71,7 @@ namespace UpLoad
                 }
             }
             long startbye = startfilesize;
-            ////更新进度
+            //更新进度
             //if (updateProgress != null && userControl != null)
             //{
             //    updateProgress(userControl, (int)allbye, (int)startfilesize);//更新进度条   
@@ -100,10 +100,12 @@ namespace UpLoad
             reqFTP.UseBinary = true;
             // 上传文件时通知服务器文件的大小 
             reqFTP.ContentLength = fileInf.Length;
-            int buffLength = 1 * 1024 * 1024;// 缓冲大小设置为2kb 
-            byte[] buff = new byte[buffLength];
+            //int buffLength = 2 * 1024;// 缓冲大小设置为2kb 
+            //byte[] buff = new byte[buffLength];
             // 打开一个文件流 (System.IO.FileStream) 去读上传的文件 
             FileStream fs = fileInf.OpenRead();
+            int buffLength = 1 * 1024 * 1024;
+            byte[] buff = new byte[buffLength];
             Stream strm = null;
             try
             {
@@ -111,7 +113,9 @@ namespace UpLoad
                 strm = reqFTP.GetRequestStream();
                 // 每次读文件流的2kb   
                 fs.Seek(startfilesize, 0);
+
                 int contentLen = fs.Read(buff, 0, buffLength);
+                startbye += contentLen;
                 // 流内容没有结束 
                 while (contentLen != 0)
                 {
@@ -119,11 +123,11 @@ namespace UpLoad
                     strm.Write(buff, 0, contentLen);
                     contentLen = fs.Read(buff, 0, buffLength);
                     startbye += contentLen;
-                    ////更新进度  
-                    //if (updateProgress != null && userControl != null)
-                    //{
-                    //    updateProgress(userControl, (int)allbye, (int)startbye);//更新进度条   
-                    //}
+                    //更新进度  
+                    if (updateProgress != null && userControl != null)
+                    {
+                        updateProgress(userControl, (int)allbye, (int)startbye);//更新进度条   
+                    }
                 }
                 ////更新进度  
                 //if (updateProgress != null && userControl != null)

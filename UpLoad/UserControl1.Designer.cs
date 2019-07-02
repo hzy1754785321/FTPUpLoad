@@ -49,7 +49,7 @@ namespace UpLoad
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(18, 22);
+            this.label1.Location = new System.Drawing.Point(18, 13);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(41, 12);
             this.label1.TabIndex = 0;
@@ -58,7 +58,7 @@ namespace UpLoad
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(151, 23);
+            this.label2.Location = new System.Drawing.Point(151, 13);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(29, 12);
             this.label2.TabIndex = 1;
@@ -66,7 +66,7 @@ namespace UpLoad
             // 
             // progressBar1
             // 
-            this.progressBar1.Location = new System.Drawing.Point(234, 15);
+            this.progressBar1.Location = new System.Drawing.Point(234, 6);
             this.progressBar1.Name = "progressBar1";
             this.progressBar1.Size = new System.Drawing.Size(197, 23);
             this.progressBar1.TabIndex = 2;
@@ -74,7 +74,7 @@ namespace UpLoad
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(479, 22);
+            this.label3.Location = new System.Drawing.Point(482, 11);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(0, 12);
             this.label3.TabIndex = 3;
@@ -83,12 +83,14 @@ namespace UpLoad
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.SystemColors.InactiveCaption;
             this.Controls.Add(this.label3);
             this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Name = "UserControl1";
-            this.Size = new System.Drawing.Size(587, 53);
+            this.Size = new System.Drawing.Size(587, 36);
+            this.Click += new System.EventHandler(this.UserControl1_Click);
             this.ResumeLayout(false);
             this.PerformLayout();
 
