@@ -59,6 +59,10 @@ namespace UpLoad
             this.splitFileSizeLaber = new System.Windows.Forms.Label();
             this.splitFileSizeText = new System.Windows.Forms.TextBox();
             this.unitMinComboBox = new System.Windows.Forms.ComboBox();
+            this.ftpIPLaber = new System.Windows.Forms.Label();
+            this.ftpRemoteLaber = new System.Windows.Forms.Label();
+            this.ftpIPText = new System.Windows.Forms.TextBox();
+            this.ftpRemoteText = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // Uploadbutton
@@ -110,16 +114,16 @@ namespace UpLoad
             this.panel1.AutoScroll = true;
             this.panel1.BackColor = System.Drawing.Color.Transparent;
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panel1.Location = new System.Drawing.Point(12, 154);
+            this.panel1.Location = new System.Drawing.Point(12, 198);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(617, 391);
+            this.panel1.Size = new System.Drawing.Size(608, 347);
             this.panel1.TabIndex = 10;
             // 
             // taskComboBox
             // 
             this.taskComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.taskComboBox.FormattingEnabled = true;
-            this.taskComboBox.Location = new System.Drawing.Point(537, 19);
+            this.taskComboBox.Location = new System.Drawing.Point(401, 102);
             this.taskComboBox.Name = "taskComboBox";
             this.taskComboBox.Size = new System.Drawing.Size(53, 20);
             this.taskComboBox.TabIndex = 11;
@@ -127,7 +131,7 @@ namespace UpLoad
             // taskNumLaber
             // 
             this.taskNumLaber.AutoSize = true;
-            this.taskNumLaber.Location = new System.Drawing.Point(442, 24);
+            this.taskNumLaber.Location = new System.Drawing.Point(305, 107);
             this.taskNumLaber.Name = "taskNumLaber";
             this.taskNumLaber.Size = new System.Drawing.Size(95, 12);
             this.taskNumLaber.TabIndex = 12;
@@ -136,7 +140,7 @@ namespace UpLoad
             // fileNameLaber
             // 
             this.fileNameLaber.AutoSize = true;
-            this.fileNameLaber.Location = new System.Drawing.Point(49, 136);
+            this.fileNameLaber.Location = new System.Drawing.Point(49, 178);
             this.fileNameLaber.Name = "fileNameLaber";
             this.fileNameLaber.Size = new System.Drawing.Size(41, 12);
             this.fileNameLaber.TabIndex = 13;
@@ -145,7 +149,7 @@ namespace UpLoad
             // progressLabel
             // 
             this.progressLabel.AutoSize = true;
-            this.progressLabel.Location = new System.Drawing.Point(329, 136);
+            this.progressLabel.Location = new System.Drawing.Point(329, 178);
             this.progressLabel.Name = "progressLabel";
             this.progressLabel.Size = new System.Drawing.Size(29, 12);
             this.progressLabel.TabIndex = 16;
@@ -154,7 +158,7 @@ namespace UpLoad
             // stateLaber
             // 
             this.stateLaber.AutoSize = true;
-            this.stateLaber.Location = new System.Drawing.Point(167, 136);
+            this.stateLaber.Location = new System.Drawing.Point(167, 178);
             this.stateLaber.Name = "stateLaber";
             this.stateLaber.Size = new System.Drawing.Size(29, 12);
             this.stateLaber.TabIndex = 15;
@@ -163,7 +167,7 @@ namespace UpLoad
             // timeLabel
             // 
             this.timeLabel.AutoSize = true;
-            this.timeLabel.Location = new System.Drawing.Point(506, 136);
+            this.timeLabel.Location = new System.Drawing.Point(506, 178);
             this.timeLabel.Name = "timeLabel";
             this.timeLabel.Size = new System.Drawing.Size(29, 12);
             this.timeLabel.TabIndex = 17;
@@ -231,11 +235,47 @@ namespace UpLoad
             this.unitMinComboBox.Size = new System.Drawing.Size(48, 20);
             this.unitMinComboBox.TabIndex = 24;
             // 
+            // ftpIPLaber
+            // 
+            this.ftpIPLaber.AutoSize = true;
+            this.ftpIPLaber.Location = new System.Drawing.Point(21, 113);
+            this.ftpIPLaber.Name = "ftpIPLaber";
+            this.ftpIPLaber.Size = new System.Drawing.Size(77, 12);
+            this.ftpIPLaber.TabIndex = 25;
+            this.ftpIPLaber.Text = "FTP服务器IP:";
+            // 
+            // ftpRemoteLaber
+            // 
+            this.ftpRemoteLaber.AutoSize = true;
+            this.ftpRemoteLaber.Location = new System.Drawing.Point(21, 140);
+            this.ftpRemoteLaber.Name = "ftpRemoteLaber";
+            this.ftpRemoteLaber.Size = new System.Drawing.Size(77, 12);
+            this.ftpRemoteLaber.TabIndex = 26;
+            this.ftpRemoteLaber.Text = "FTP目标目录:";
+            // 
+            // ftpIPText
+            // 
+            this.ftpIPText.Location = new System.Drawing.Point(104, 107);
+            this.ftpIPText.Name = "ftpIPText";
+            this.ftpIPText.Size = new System.Drawing.Size(172, 21);
+            this.ftpIPText.TabIndex = 27;
+            // 
+            // ftpRemoteText
+            // 
+            this.ftpRemoteText.Location = new System.Drawing.Point(104, 136);
+            this.ftpRemoteText.Name = "ftpRemoteText";
+            this.ftpRemoteText.Size = new System.Drawing.Size(172, 21);
+            this.ftpRemoteText.TabIndex = 28;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(632, 557);
+            this.ClientSize = new System.Drawing.Size(623, 557);
+            this.Controls.Add(this.ftpRemoteText);
+            this.Controls.Add(this.ftpIPText);
+            this.Controls.Add(this.ftpRemoteLaber);
+            this.Controls.Add(this.ftpIPLaber);
             this.Controls.Add(this.unitMinComboBox);
             this.Controls.Add(this.splitFileSizeText);
             this.Controls.Add(this.splitFileSizeLaber);
@@ -282,6 +322,10 @@ namespace UpLoad
         private Label splitFileSizeLaber;
         private TextBox splitFileSizeText;
         private ComboBox unitMinComboBox;
+        private Label ftpIPLaber;
+        private Label ftpRemoteLaber;
+        private TextBox ftpIPText;
+        private TextBox ftpRemoteText;
     }
 }
 

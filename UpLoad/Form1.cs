@@ -60,7 +60,24 @@ namespace UpLoad
 
         private void Uploadbutton_Click(object sender, EventArgs e)
         {
-
+            if (string.IsNullOrEmpty(ftpIPText.Text))
+            {
+                MessageBox.Show("请先输入FTP服务器的IP地址!");
+                return;
+            }
+            IPAddress ip;
+            try
+            {
+                if (!IPAddress.TryParse(ftpIPText.Text, out ip))
+                {
+                    MessageBox.Show("输入的FTP服务器的IP格式错误!");
+                    return;
+                }
+            }
+            catch
+            {
+                MessageBox.Show("输入的FTP服务器的IP格式错误!");
+            }
             Thread thread = new Thread(UpdateStart);
             thread.Start();
         }
@@ -166,7 +183,6 @@ namespace UpLoad
                     item.label2.Text = text;
                     if (time != "0")
                         item.label3.Text = "耗时: " + time + " 秒";
-                    //        listBox1.DataSource = ;
                     break;
                 }
             }
@@ -371,7 +387,16 @@ namespace UpLoad
 
         private void Button1_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(unitComboBox.Text);
+            string ipStr = "296.168.222.3";
+            IPAddress ip;
+            if (IPAddress.TryParse(ipStr, out ip))
+            {
+                MessageBox.Show("合法IP");
+            }
+            else
+            {
+                MessageBox.Show("非法IP");
+            }
         }
 
         private void Button3_Click(object sender, EventArgs e)
