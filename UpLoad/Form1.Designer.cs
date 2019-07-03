@@ -41,7 +41,6 @@ namespace UpLoad
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
             this.Uploadbutton = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
@@ -69,10 +68,6 @@ namespace UpLoad
             this.label2 = new System.Windows.Forms.Label();
             this.FtpUserText = new System.Windows.Forms.TextBox();
             this.ftpPasswdText = new System.Windows.Forms.TextBox();
-            this.userControl11 = new UpLoad.UserControl1();
-            this.userControl12 = new UpLoad.UserControl1();
-            this.userControl13 = new UpLoad.UserControl1();
-            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // Uploadbutton
@@ -124,9 +119,6 @@ namespace UpLoad
             this.panel1.AutoScroll = true;
             this.panel1.BackColor = System.Drawing.Color.Transparent;
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panel1.Controls.Add(this.userControl13);
-            this.panel1.Controls.Add(this.userControl12);
-            this.panel1.Controls.Add(this.userControl11);
             this.panel1.Location = new System.Drawing.Point(12, 198);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(608, 347);
@@ -314,30 +306,6 @@ namespace UpLoad
             this.ftpPasswdText.Size = new System.Drawing.Size(139, 21);
             this.ftpPasswdText.TabIndex = 32;
             // 
-            // userControl11
-            // 
-            this.userControl11.BackColor = System.Drawing.SystemColors.InactiveCaption;
-            this.userControl11.Location = new System.Drawing.Point(10, 40);
-            this.userControl11.Name = "userControl11";
-            this.userControl11.Size = new System.Drawing.Size(587, 36);
-            this.userControl11.TabIndex = 0;
-            // 
-            // userControl12
-            // 
-            this.userControl12.BackColor = System.Drawing.SystemColors.InactiveCaption;
-            this.userControl12.Location = new System.Drawing.Point(7, 82);
-            this.userControl12.Name = "userControl12";
-            this.userControl12.Size = new System.Drawing.Size(587, 36);
-            this.userControl12.TabIndex = 1;
-            // 
-            // userControl13
-            // 
-            this.userControl13.BackColor = System.Drawing.SystemColors.InactiveCaption;
-            this.userControl13.Location = new System.Drawing.Point(11, 124);
-            this.userControl13.Name = "userControl13";
-            this.userControl13.Size = new System.Drawing.Size(587, 36);
-            this.userControl13.TabIndex = 2;
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -371,7 +339,6 @@ namespace UpLoad
             this.Controls.Add(this.Uploadbutton);
             this.Name = "Form1";
             this.Text = "UpLoad";
-            this.panel1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -406,9 +373,6 @@ namespace UpLoad
         private Label label2;
         private TextBox FtpUserText;
         private TextBox ftpPasswdText;
-        private UserControl1 userControl11;
-        private UserControl1 userControl13;
-        private UserControl1 userControl12;
     }
 }
 
