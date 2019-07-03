@@ -14,23 +14,24 @@ using System.Diagnostics;
 using Microsoft.Win32;
 using System.Runtime.InteropServices;
 using System.Collections;
+using System.Text.RegularExpressions;
 
 namespace UpLoad
 {
     public partial class Form1 : Form
     {
-        private static string FTPCONSTR = "ftp://192.168.238.1";
         private static string[] strpath;
-        private static string pathStr = "/data/";
         private static string pathStr1 = "data";
+        private static string splitFileSavePath = "";
         public delegate bool MethodCaller(string path, string remotePath, Action<UserControl1, int, int> updateProgress);//定义个代理 
 
         public delegate bool tempChange(MethodCaller mc, IAsyncResult ir, string path, Stopwatch time,int index);
-        public static int[] flags;
-        public static Form1 form1;
-        public static int unitKB = 1024;
-        public static int unitM = 1024 * 1024;
-        public static int unitG = 1024 * 1024 * 1024;
+        public static int[] flags;   //标志位
+        public static Form1 form1;  
+        public static int unitKB = 1024;   //KB单位
+        public static int unitM = 1024 * 1024;  //M单位
+        public static int unitG = 1024 * 1024 * 1024;  //GB单位
+
 
 
         public Form1()
@@ -55,9 +56,17 @@ namespace UpLoad
             unitMinComboBox.Items.Add("G");
             unitMinComboBox.SelectedIndex = 0;
             ConfirmSplit.Checked = true;
+            FTPHelper.FtpUserID = FtpUserText.Text;
+            FTPHelper.FtpPassword = ftpPasswdText.Text;
+            pathStr1 = ftpRemoteText.Text;
+            ftpIPText.Text = "192.168.238.1";
         }
 
-
+        /// <summary>
+        /// 点击上传到FTP按钮
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Uploadbutton_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(ftpIPText.Text))
@@ -65,39 +74,37 @@ namespace UpLoad
                 MessageBox.Show("请先输入FTP服务器的IP地址!");
                 return;
             }
-            IPAddress ip;
-            try
-            {
-                if (!IPAddress.TryParse(ftpIPText.Text, out ip))
-                {
-                    MessageBox.Show("输入的FTP服务器的IP格式错误!");
-                    return;
-                }
-            }
-            catch
+            if (!Regex.IsMatch(ftpIPText.Text, @"^((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?)$"))
             {
                 MessageBox.Show("输入的FTP服务器的IP格式错误!");
+                return;
             }
+            FTPHelper.FtpServerIP = ftpIPText.Text;
             Thread thread = new Thread(UpdateStart);
             thread.Start();
         }
 
+        /// <summary>
+        /// 上传线程
+        /// </summary>
         public void UpdateStart()
         {
             var path = strpath;
+            //滚动条
             Action<UserControl1, int, int> updateProgress = progressBarShow;
-            List<Stopwatch> time = new List<Stopwatch>();
+            List<Stopwatch> time = new List<Stopwatch>();   //计时器
             CheckForIllegalCrossThreadCalls = false;
             List<string> splitFilePath = null;
             for (int i = 0; i < path.Length; i++)
             {
                 if(ConfirmSplit.Checked)
-                    splitFilePath = SplitFile(path[i]);
+                    splitFilePath = SplitFile(path[i]);  //切割文件
                 if (splitFilePath == null)
                 {
                     splitFilePath = new List<string>();
                     splitFilePath.Add(path[i]);
                 }
+                //生成自定义控件
                 CreateControl(splitFilePath);
                 List<MethodCaller> mcs = new List<MethodCaller>();
                 List<IAsyncResult> ret = new List<IAsyncResult>();
@@ -107,17 +114,25 @@ namespace UpLoad
                 {
                     time.Add(new Stopwatch());
                     time[j].Start();
+                    //上传封装到委托
                     MethodCaller mc = new MethodCaller(FTPHelper.FtpUploadBroken);
                     mcs.Add(mc);
                     mcsTmp.Add(mc);
+                    //启动上传的异步委托
                     IAsyncResult rets = mcs[j].BeginInvoke(splitFilePath[j], pathStr1, updateProgress, null, null);
                     ret.Add(rets);
+                    ChangeControl(splitFilePath[j], "上传中", "0");
+                    //上传结果封装到委托
                     tempChange tc = new tempChange(UpdateResult);
+                    //启动上传结果处理的异步委托
                     tc.BeginInvoke(mcs[j], ret[j], splitFilePath[j], time[j], j, null, null);
-                    while (mcsTmp.Count >= 2)
-                    {
 
+                    int taskNumber = Convert.ToInt32(taskComboBox.Text);
+                    //同时进行最大任务数
+                    while (mcsTmp.Count >= taskNumber)
+                    {
                         bool isBreak = false;
+                        //等待任务结果
                         while (!isBreak)
                         {
                             for (int x = 0; x < flags.Length; x++)
@@ -137,6 +152,7 @@ namespace UpLoad
 
             }
             bool isOver = false;
+            //等待全部完成
             while (!isOver)
             {
                 for (int x = 0; x < flags.Length; x++)
@@ -154,6 +170,15 @@ namespace UpLoad
         }
 
 
+        /// <summary>
+        /// 上传结果处理
+        /// </summary>
+        /// <param name="mc">上传的委托方法</param>
+        /// <param name="ir">上传委托的返回</param>
+        /// <param name="splitPath">文件路径</param>
+        /// <param name="time">计时器</param>
+        /// <param name="index">索引</param>
+        /// <returns></returns>
         public bool UpdateResult(MethodCaller mc, IAsyncResult ir, string splitPath, Stopwatch time, int index)
         {
             bool result = mc.EndInvoke(ir);
@@ -161,17 +186,23 @@ namespace UpLoad
             if (result)
             {
                 ChangeControl(splitPath, "上传成功", time.Elapsed.TotalSeconds.ToString("f2"));
-
             }
             else
             {
                 ChangeControl(splitPath, "上传失败", "0");
             }
             time.Reset();
+            //标志文件以及上传完成
             flags[index] = 1;
             return true;
         }
 
+        /// <summary>
+        /// 修改自定义控件内容
+        /// </summary>
+        /// <param name="name">控件名</param>
+        /// <param name="text">需要修改的内容</param>
+        /// <param name="time">耗时</param>
         public void ChangeControl(string name, string text, string time)
         {
             foreach (UserControl1 item in panel1.Controls)
@@ -188,71 +219,44 @@ namespace UpLoad
             }
         }
 
+        /// <summary>
+        /// 生成自定义控件
+        /// </summary>
+        /// <param name="spliteFile"></param>
         public void CreateControl(List<string> spliteFile)
         {
             int x = 0, y = 0;
             if (panel1.Controls.Count != 0)
             {
+                //获取最后一个控件的坐标
                 x = panel1.Controls[panel1.Controls.Count - 1].Location.X;
-                y = panel1.Controls[panel1.Controls.Count - 1].Location.Y + panel1.Controls[0].Height + 10;
+                y = panel1.Controls[panel1.Controls.Count - 1].Location.Y;
             }
             foreach (string item in spliteFile)
             {
                 UserControl1 cb = new UserControl1();
                 var fileInfo = new FileInfo(item);
+                //获取没有后缀名的文件名
                 string[] temp = fileInfo.Name.Split(new string[] { fileInfo.Extension }, StringSplitOptions.None);
                 cb.label1.Text = temp[0];
-                cb.label2.Text = "上传中";
+                cb.label2.Text = "等待中";
                 cb.Location = new Point(x, y);
-                //                listBox1.Controls.Add(cb);
+                //用委托增加控件,因为是在子线程刷主线程控件
                 this.Invoke(new EventHandler(delegate
                 {
                     panel1.Controls.Add(cb);
                 }));
-                y += cb.Height + 10;
+                y += cb.Height + 8;
             }
         }
 
-        private void AddUserControl(Control cb)
-        {
-            if (this.InvokeRequired)
-            {
-                this.Invoke(new MethodInvoker(delegate { AddUserControl(cb); }));
-                return;
-            }
-            this.Controls.Add(cb);
-        }
-
-        public class MyProgressBar : ProgressBar
-        {
-            public MyProgressBar()
-            {
-                SetStyle(ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
-            }
-
-            protected override void OnPaint(PaintEventArgs e)
-            {
-                Rectangle rect = ClientRectangle;
-                Graphics g = e.Graphics;
-
-                ProgressBarRenderer.DrawHorizontalBar(g, rect);
-                rect.Inflate(1, 1);
-                if (Value > 0)
-                {
-                    var clip = new Rectangle(rect.X, rect.Y, (int)((float)Value / Maximum * rect.Width), rect.Height);
-                    ProgressBarRenderer.DrawHorizontalChunks(g, clip);
-                }
-                var now = ((float)Value / (float)Maximum) * 100;
-                string text = string.Format("{0:00.00}%", now); ;
-                using (var font = new Font(FontFamily.GenericSerif, 20))
-                {
-                    SizeF sz = g.MeasureString(text, font);
-                    var location = new PointF(rect.Width / 2 - sz.Width / 2, rect.Height / 2 - sz.Height / 2 + 2);
-                    g.DrawString(text, font, Brushes.Tomato, location);
-                }
-            }
-        }
-
+     
+        /// <summary>
+        /// 进度条刷新
+        /// </summary>
+        /// <param name="uc">控件</param>
+        /// <param name="allbye">总进度</param>
+        /// <param name="nowByte">当前进度</param>
         public void progressBarShow(UserControl1 uc, int allbye, int nowByte)
         {
             uc.progressBar1.Maximum = allbye;
@@ -260,6 +264,11 @@ namespace UpLoad
             uc.progressBar1.Value = nowByte;
         }
 
+        /// <summary>
+        /// 查找控件
+        /// </summary>
+        /// <param name="name">控件名</param>
+        /// <returns></returns>
         public UserControl1 FindUserContrl(string name)
         {
             foreach (UserControl1 item in this.panel1.Controls)
@@ -274,13 +283,19 @@ namespace UpLoad
             return null;
         }
 
+        /// <summary>
+        /// 打开文件
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Button2_Click(object sender, EventArgs e)
         {
             try
             {
-                this.openFileDialog1.Multiselect = true;
-                this.openFileDialog1.ShowDialog();
-                var path = this.openFileDialog1.FileNames;  //获取openFileDialog控件选择的文件名数组
+                openFileDialog1.Multiselect = true;
+                openFileDialog1.Title = "选择需要上传的文件";
+                openFileDialog1.ShowDialog();
+                var path = openFileDialog1.FileNames;  //获取openFileDialog控件选择的文件名数组
                 strpath = new string[path.Length];
                 for (int y = 0; y < path.Length; y++)
                 {
@@ -293,12 +308,35 @@ namespace UpLoad
             }
         }
 
+        /// <summary>
+        /// 分割文件
+        /// </summary>
+        /// <param name="filePaths"></param>
+        /// <returns></returns>
         public List<string> SplitFile(string filePaths)
         {
+            while (splitFileSavePath == "")
+            {
+                this.Invoke(new EventHandler(delegate
+                {
+                    FolderBrowserDialog P_File_Folder = new FolderBrowserDialog();
+                    P_File_Folder.Description = "请选择保存文件夹";
+                    if (P_File_Folder.ShowDialog() == DialogResult.OK)
+                    {
+                        splitFileSavePath = P_File_Folder.SelectedPath;
+                    }
+                    else
+                    {
+                        MessageBox.Show("请选择分割文件保存路径");
+                    }
+                }));
+            }
             string file = filePaths;
             FileInfo fileInfo = new FileInfo(file);
             string[] temp = fileInfo.Name.Split(new string[] { fileInfo.Extension }, StringSplitOptions.None);
-            string splitFileFormat = @"D:\Test\Copy\" + temp[0] + "_tmp{0}" + fileInfo.Extension;
+            //存放路径
+            string splitFileFormat = splitFileSavePath + @"\" +temp[0] + "_tmp{0}" + fileInfo.Extension;
+            //确定需要分割文件大小的单位
             int splitMinFileSize = 0;
             if (unitComboBox.Text == "M")
                 splitMinFileSize = Convert.ToInt32(splitMinFileSizeText.Text) * unitM;
@@ -306,6 +344,7 @@ namespace UpLoad
                 splitMinFileSize = Convert.ToInt32(splitMinFileSizeText.Text) * unitKB;
             else if (unitComboBox.Text == "G")
                 splitMinFileSize = Convert.ToInt32(splitMinFileSizeText.Text) * unitG;
+            //确定每个分割文件大小的单位
             int splitFileSize = 0;
             if (unitMinComboBox.Text == "M")
                 splitFileSize = Convert.ToInt32(splitFileSizeText.Text) * unitM;
@@ -380,40 +419,64 @@ namespace UpLoad
             }
         }
 
-        public static void MessboxShow(string text)
-        {
-            MessageBox.Show(text);
-        }
-
+        /// <summary>
+        /// 选择分割文件保存文件夹
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Button1_Click(object sender, EventArgs e)
         {
-            string ipStr = "296.168.222.3";
-            IPAddress ip;
-            if (IPAddress.TryParse(ipStr, out ip))
+            FolderBrowserDialog P_File_Folder = new FolderBrowserDialog();
+            P_File_Folder.Description = "请选择保存文件夹";
+            if (P_File_Folder.ShowDialog() == DialogResult.OK)
             {
-                MessageBox.Show("合法IP");
-            }
-            else
-            {
-                MessageBox.Show("非法IP");
+                MessageBox.Show(P_File_Folder.SelectedPath);
+                splitFileSavePath = P_File_Folder.SelectedPath;
             }
         }
 
+        /// <summary>
+        /// 合并文件,测试用
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Button3_Click(object sender, EventArgs e)
         {
-            string url = "D:/TestHzy/" + pathStr1 + "/";
-            var filePaths = Directory.GetFiles(url);
-            string combineFilePath = "";
-            List<string> splitFileFormat = new List<string>();
-            for (int i = 0; i < filePaths.Count(); i++)
-            {
-                FileInfo fileInfo = new FileInfo(filePaths[i]);
-                splitFileFormat.Add(fileInfo.FullName);
-                string[] temp = fileInfo.Name.Split(new string[] { "_tmp" }, StringSplitOptions.None);
-                combineFilePath = @"D:/TestHzy/" + pathStr1 + "/" + temp[0];
-            }
-            CombineFiles(splitFileFormat.ToArray(), combineFilePath);
-            MessageBox.Show("合并完成!");
+            Graphics g = button3.CreateGraphics();
+            PaintEventArgs pe = new PaintEventArgs(g, button3.ClientRectangle);
+            Rectangle myRectangle = new Rectangle(0, 0, button3.Width, button3.Height);
+            ControlPaint.DrawBorder(pe.Graphics, myRectangle,
+                Color.Red, 6, ButtonBorderStyle.Solid,
+                Color.Red, 6, ButtonBorderStyle.Solid,
+                Color.Red, 6, ButtonBorderStyle.Solid,
+                Color.Red, 6, ButtonBorderStyle.Solid
+            );
+            //string url = "D:/TestHzy/" + pathStr1 + "/";
+            //var filePaths = Directory.GetFiles(url);
+            //string combineFilePath = "";
+            //List<string> splitFileFormat = new List<string>();
+            //for (int i = 0; i < filePaths.Count(); i++)
+            //{
+            //    FileInfo fileInfo = new FileInfo(filePaths[i]);
+            //    splitFileFormat.Add(fileInfo.FullName);
+            //    string[] temp = fileInfo.Name.Split(new string[] { "_tmp" }, StringSplitOptions.None);
+            //    combineFilePath = @"D:/TestHzy/" + pathStr1 + "/" + temp[0];
+            //}
+            //CombineFiles(splitFileFormat.ToArray(), combineFilePath);
+            //MessageBox.Show("合并完成!");
+        }
+
+        private void UserControl11_MouseHover(object sender, EventArgs e)
+        {
+            Graphics g = this.CreateGraphics();
+            PaintEventArgs pe = new PaintEventArgs(g, this.ClientRectangle);
+            Rectangle myRectangle = new Rectangle(0, 0, this.Width, this.Height);
+            ControlPaint.DrawBorder(pe.Graphics, myRectangle,
+                Color.Gray, 2, ButtonBorderStyle.Solid,
+                Color.Gray, 2, ButtonBorderStyle.Solid,
+                Color.Gray, 2, ButtonBorderStyle.Solid,
+                Color.Gray, 2, ButtonBorderStyle.Solid
+            );
         }
     }
 }

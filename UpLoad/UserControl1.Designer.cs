@@ -22,15 +22,23 @@ namespace UpLoad
             base.Dispose(disposing);
         }
 
-        protected override CreateParams CreateParams
-        {
-            get
-            {
-                CreateParams cp = base.CreateParams;
-                cp.ExStyle |= 0x02000000;
-                return cp;
-            }
-        }
+        //防闪烁
+        //protected override CreateParams CreateParams
+        //{
+        //    get
+        //    {
+        //        CreateParams cp = base.CreateParams;
+        //        cp.ExStyle |= 0x02000000;
+        //        return cp;
+        //    }
+        //}
+
+        //protected override void WndProc(ref Message m)
+        //{
+        //    if (m.Msg == 0x0014) // 禁掉清除背景消息
+        //        return;
+        //    base.WndProc(ref m);
+        //}
 
         #region 组件设计器生成的代码
 
@@ -40,10 +48,15 @@ namespace UpLoad
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.progressBar1 = new UpLoad.Form1.MyProgressBar();
             this.label3 = new System.Windows.Forms.Label();
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.停止ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.重新开始ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.progressBar1 = new UpLoad.MyProgressBar();
+            this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // label1
@@ -64,13 +77,6 @@ namespace UpLoad
             this.label2.TabIndex = 1;
             this.label2.Text = "状态";
             // 
-            // progressBar1
-            // 
-            this.progressBar1.Location = new System.Drawing.Point(234, 6);
-            this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(197, 23);
-            this.progressBar1.TabIndex = 2;
-            // 
             // label3
             // 
             this.label3.AutoSize = true;
@@ -79,18 +85,50 @@ namespace UpLoad
             this.label3.Size = new System.Drawing.Size(0, 12);
             this.label3.TabIndex = 3;
             // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.停止ToolStripMenuItem,
+            this.重新开始ToolStripMenuItem});
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(181, 70);
+            this.contextMenuStrip1.Closed += new System.Windows.Forms.ToolStripDropDownClosedEventHandler(this.ContextMenuStrip1_Closed);
+            this.contextMenuStrip1.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenuStrip1_Opening);
+            // 
+            // 停止ToolStripMenuItem
+            // 
+            this.停止ToolStripMenuItem.Name = "停止ToolStripMenuItem";
+            this.停止ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.停止ToolStripMenuItem.Text = "停止";
+            // 
+            // 重新开始ToolStripMenuItem
+            // 
+            this.重新开始ToolStripMenuItem.Name = "重新开始ToolStripMenuItem";
+            this.重新开始ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.重新开始ToolStripMenuItem.Text = "重发";
+            // 
+            // progressBar1
+            // 
+            this.progressBar1.Location = new System.Drawing.Point(234, 6);
+            this.progressBar1.Name = "progressBar1";
+            this.progressBar1.Size = new System.Drawing.Size(197, 23);
+            this.progressBar1.TabIndex = 2;
+            // 
             // UserControl1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.InactiveCaption;
+            this.ContextMenuStrip = this.contextMenuStrip1;
             this.Controls.Add(this.label3);
             this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Name = "UserControl1";
             this.Size = new System.Drawing.Size(587, 36);
-            this.Click += new System.EventHandler(this.UserControl1_Click);
+            this.MouseEnter += new System.EventHandler(this.UserControl1_MouseHover);
+            this.MouseLeave += new System.EventHandler(this.UserControl1_MouseLeave);
+            this.contextMenuStrip1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -100,7 +138,10 @@ namespace UpLoad
 
         public System.Windows.Forms.Label label1;
         public System.Windows.Forms.Label label2;
-        public Form1.MyProgressBar progressBar1;
+        public MyProgressBar progressBar1;
         public Label label3;
+        private ContextMenuStrip contextMenuStrip1;
+        private ToolStripMenuItem 停止ToolStripMenuItem;
+        private ToolStripMenuItem 重新开始ToolStripMenuItem;
     }
 }

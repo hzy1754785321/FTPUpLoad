@@ -22,15 +22,16 @@ namespace UpLoad
             base.Dispose(disposing);
         }
 
-        protected override CreateParams CreateParams
-        {
-            get
-            {
-                CreateParams cp = base.CreateParams;
-                cp.ExStyle |= 0x02000000;
-                return cp;
-            }
-        }
+        //防闪烁
+        //protected override CreateParams CreateParams
+        //{
+        //    get
+        //    {
+        //        CreateParams cp = base.CreateParams;
+        //        cp.ExStyle |= 0x02000000;
+        //        return cp;
+        //    }
+        //}
 
         #region Windows 窗体设计器生成的代码
 
@@ -40,6 +41,7 @@ namespace UpLoad
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.Uploadbutton = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
@@ -63,11 +65,19 @@ namespace UpLoad
             this.ftpRemoteLaber = new System.Windows.Forms.Label();
             this.ftpIPText = new System.Windows.Forms.TextBox();
             this.ftpRemoteText = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.FtpUserText = new System.Windows.Forms.TextBox();
+            this.ftpPasswdText = new System.Windows.Forms.TextBox();
+            this.userControl11 = new UpLoad.UserControl1();
+            this.userControl12 = new UpLoad.UserControl1();
+            this.userControl13 = new UpLoad.UserControl1();
+            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // Uploadbutton
             // 
-            this.Uploadbutton.Location = new System.Drawing.Point(169, 12);
+            this.Uploadbutton.Location = new System.Drawing.Point(172, 12);
             this.Uploadbutton.Name = "Uploadbutton";
             this.Uploadbutton.Size = new System.Drawing.Size(122, 35);
             this.Uploadbutton.TabIndex = 0;
@@ -79,7 +89,7 @@ namespace UpLoad
             // 
             this.button2.Location = new System.Drawing.Point(23, 12);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(122, 35);
+            this.button2.Size = new System.Drawing.Size(140, 35);
             this.button2.TabIndex = 2;
             this.button2.Text = "选择要上传的文件";
             this.button2.UseVisualStyleBackColor = true;
@@ -93,15 +103,15 @@ namespace UpLoad
             // 
             this.button1.Location = new System.Drawing.Point(23, 66);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(122, 35);
+            this.button1.Size = new System.Drawing.Size(140, 35);
             this.button1.TabIndex = 4;
-            this.button1.Text = "测试";
+            this.button1.Text = "选择分割文件保存路径";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.Button1_Click);
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(169, 66);
+            this.button3.Location = new System.Drawing.Point(171, 66);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(122, 35);
             this.button3.TabIndex = 8;
@@ -114,6 +124,9 @@ namespace UpLoad
             this.panel1.AutoScroll = true;
             this.panel1.BackColor = System.Drawing.Color.Transparent;
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel1.Controls.Add(this.userControl13);
+            this.panel1.Controls.Add(this.userControl12);
+            this.panel1.Controls.Add(this.userControl11);
             this.panel1.Location = new System.Drawing.Point(12, 198);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(608, 347);
@@ -123,7 +136,7 @@ namespace UpLoad
             // 
             this.taskComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.taskComboBox.FormattingEnabled = true;
-            this.taskComboBox.Location = new System.Drawing.Point(401, 102);
+            this.taskComboBox.Location = new System.Drawing.Point(554, 19);
             this.taskComboBox.Name = "taskComboBox";
             this.taskComboBox.Size = new System.Drawing.Size(53, 20);
             this.taskComboBox.TabIndex = 11;
@@ -131,7 +144,7 @@ namespace UpLoad
             // taskNumLaber
             // 
             this.taskNumLaber.AutoSize = true;
-            this.taskNumLaber.Location = new System.Drawing.Point(305, 107);
+            this.taskNumLaber.Location = new System.Drawing.Point(459, 23);
             this.taskNumLaber.Name = "taskNumLaber";
             this.taskNumLaber.Size = new System.Drawing.Size(95, 12);
             this.taskNumLaber.TabIndex = 12;
@@ -140,7 +153,7 @@ namespace UpLoad
             // fileNameLaber
             // 
             this.fileNameLaber.AutoSize = true;
-            this.fileNameLaber.Location = new System.Drawing.Point(49, 178);
+            this.fileNameLaber.Location = new System.Drawing.Point(47, 178);
             this.fileNameLaber.Name = "fileNameLaber";
             this.fileNameLaber.Size = new System.Drawing.Size(41, 12);
             this.fileNameLaber.TabIndex = 13;
@@ -158,7 +171,7 @@ namespace UpLoad
             // stateLaber
             // 
             this.stateLaber.AutoSize = true;
-            this.stateLaber.Location = new System.Drawing.Point(167, 178);
+            this.stateLaber.Location = new System.Drawing.Point(169, 178);
             this.stateLaber.Name = "stateLaber";
             this.stateLaber.Size = new System.Drawing.Size(29, 12);
             this.stateLaber.TabIndex = 15;
@@ -266,12 +279,74 @@ namespace UpLoad
             this.ftpRemoteText.Name = "ftpRemoteText";
             this.ftpRemoteText.Size = new System.Drawing.Size(172, 21);
             this.ftpRemoteText.TabIndex = 28;
+            this.ftpRemoteText.Text = "data";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(292, 111);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(65, 12);
+            this.label1.TabIndex = 29;
+            this.label1.Text = "FTP用户名:";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(303, 138);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(53, 12);
+            this.label2.TabIndex = 30;
+            this.label2.Text = "FTP密码:";
+            // 
+            // FtpUserText
+            // 
+            this.FtpUserText.Location = new System.Drawing.Point(370, 106);
+            this.FtpUserText.Name = "FtpUserText";
+            this.FtpUserText.Size = new System.Drawing.Size(139, 21);
+            this.FtpUserText.TabIndex = 31;
+            // 
+            // ftpPasswdText
+            // 
+            this.ftpPasswdText.Location = new System.Drawing.Point(370, 134);
+            this.ftpPasswdText.Name = "ftpPasswdText";
+            this.ftpPasswdText.PasswordChar = '*';
+            this.ftpPasswdText.Size = new System.Drawing.Size(139, 21);
+            this.ftpPasswdText.TabIndex = 32;
+            // 
+            // userControl11
+            // 
+            this.userControl11.BackColor = System.Drawing.SystemColors.InactiveCaption;
+            this.userControl11.Location = new System.Drawing.Point(10, 40);
+            this.userControl11.Name = "userControl11";
+            this.userControl11.Size = new System.Drawing.Size(587, 36);
+            this.userControl11.TabIndex = 0;
+            // 
+            // userControl12
+            // 
+            this.userControl12.BackColor = System.Drawing.SystemColors.InactiveCaption;
+            this.userControl12.Location = new System.Drawing.Point(7, 82);
+            this.userControl12.Name = "userControl12";
+            this.userControl12.Size = new System.Drawing.Size(587, 36);
+            this.userControl12.TabIndex = 1;
+            // 
+            // userControl13
+            // 
+            this.userControl13.BackColor = System.Drawing.SystemColors.InactiveCaption;
+            this.userControl13.Location = new System.Drawing.Point(11, 124);
+            this.userControl13.Name = "userControl13";
+            this.userControl13.Size = new System.Drawing.Size(587, 36);
+            this.userControl13.TabIndex = 2;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(623, 557);
+            this.Controls.Add(this.ftpPasswdText);
+            this.Controls.Add(this.FtpUserText);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.ftpRemoteText);
             this.Controls.Add(this.ftpIPText);
             this.Controls.Add(this.ftpRemoteLaber);
@@ -296,6 +371,7 @@ namespace UpLoad
             this.Controls.Add(this.Uploadbutton);
             this.Name = "Form1";
             this.Text = "UpLoad";
+            this.panel1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -326,6 +402,13 @@ namespace UpLoad
         private Label ftpRemoteLaber;
         private TextBox ftpIPText;
         private TextBox ftpRemoteText;
+        private Label label1;
+        private Label label2;
+        private TextBox FtpUserText;
+        private TextBox ftpPasswdText;
+        private UserControl1 userControl11;
+        private UserControl1 userControl13;
+        private UserControl1 userControl12;
     }
 }
 

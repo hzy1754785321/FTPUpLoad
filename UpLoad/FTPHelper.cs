@@ -11,8 +11,6 @@ namespace UpLoad
 {
     public class FTPHelper
     {
-        string ftpRemotePath;
-
         #region 变量属性
         /// <summary>
         /// Ftp服务器ip
