@@ -25,19 +25,54 @@ namespace UpLoad
         private static string splitFileSavePath = "";
         public delegate bool MethodCaller(string path, string remotePath, Action<UserControl1, int, int> updateProgress);//定义个代理 
 
-        public delegate bool tempChange(MethodCaller mc, IAsyncResult ir, string path, Stopwatch time,int index);
+        public delegate bool tempChange(MethodCaller mc, IAsyncResult ir, string path, Stopwatch time, int index);
         public static int[] flags;   //标志位
-        public static Form1 form1;  
+        public static Form1 form1;
         public static int unitKB = 1024;   //KB单位
         public static int unitM = 1024 * 1024;  //M单位
         public static int unitG = 1024 * 1024 * 1024;  //GB单位
-
-
+        public static Dictionary<string, int> keyValues = new Dictionary<string, int>();
+        public static Dictionary<string, IAsyncResult> irDir = new Dictionary<string, IAsyncResult>();
+        public static Setting settingCache = new Setting();
+        public static string yamlPath;
 
         public Form1()
         {
             InitializeComponent();
             form1 = this;
+            string path = AppDomain.CurrentDomain.BaseDirectory;
+            DirectoryInfo pathInfo = new DirectoryInfo(path);
+            yamlPath = pathInfo.Parent.Parent.FullName + @"\config.yaml";
+            var setting = ReadYaml();
+            if (setting != null)
+            {
+                settingCache = setting;
+                ReadConfig(settingCache);
+            }
+        }
+
+
+        private Setting ReadYaml()
+        {
+            var settingInfo = new Setting();
+            if (!File.Exists(yamlPath))
+            {
+                MessageBox.Show("没有找到配置文件！");
+                return null;
+            }
+            YamlHelper.SetFilePath(yamlPath);
+            settingInfo = YamlHelper.Deserializer<Setting>();
+            return settingInfo;
+        }
+
+        private void SetYaml(Setting setting)
+        {
+            YamlHelper.SetFilePath(yamlPath);
+            YamlHelper.Serializer(setting);
+        }
+
+        public void ReadConfig(Setting setting)
+        {
             taskComboBox.Items.Add("3");
             taskComboBox.Items.Add("1");
             taskComboBox.Items.Add("2");
@@ -46,20 +81,20 @@ namespace UpLoad
             taskComboBox.Items.Add("6");
             taskComboBox.Items.Add("7");
             taskComboBox.Items.Add("8");
-            taskComboBox.SelectedIndex = 0;
+            taskComboBox.SelectedIndex = setting.taskComboBoxIndex;
             unitComboBox.Items.Add("M");
             unitComboBox.Items.Add("KB");
             unitComboBox.Items.Add("G");
-            unitComboBox.SelectedIndex = 0;
+            unitComboBox.SelectedIndex = setting.unitComboBoxIndex;
             unitMinComboBox.Items.Add("M");
             unitMinComboBox.Items.Add("KB");
             unitMinComboBox.Items.Add("G");
-            unitMinComboBox.SelectedIndex = 0;
-            ConfirmSplit.Checked = true;
-            FTPHelper.FtpUserID = FtpUserText.Text;
-            FTPHelper.FtpPassword = ftpPasswdText.Text;
-            pathStr1 = ftpRemoteText.Text;
-            ftpIPText.Text = "192.168.238.1";
+            unitMinComboBox.SelectedIndex = setting.unitMinComboBoxIndex;
+            ConfirmSplit.Checked = setting.confirmSplit;
+            FTPHelper.FtpUserID = setting.ftpUser;
+            FTPHelper.FtpPassword = setting.ftpPasswd;
+            pathStr1 = setting.remotePath;
+            ftpIPText.Text = setting.serverIP;
         }
 
         /// <summary>
@@ -97,7 +132,7 @@ namespace UpLoad
             List<string> splitFilePath = null;
             for (int i = 0; i < path.Length; i++)
             {
-                if(ConfirmSplit.Checked)
+                if (ConfirmSplit.Checked)
                     splitFilePath = SplitFile(path[i]);  //切割文件
                 if (splitFilePath == null)
                 {
@@ -116,17 +151,21 @@ namespace UpLoad
                     time[j].Start();
                     //上传封装到委托
                     MethodCaller mc = new MethodCaller(FTPHelper.FtpUploadBroken);
-                    mcs.Add(mc);
+                    mcs.Add(mc);                      
                     mcsTmp.Add(mc);
                     //启动上传的异步委托
                     IAsyncResult rets = mcs[j].BeginInvoke(splitFilePath[j], pathStr1, updateProgress, null, null);
                     ret.Add(rets);
+                    var fileInfo = new FileInfo(splitFilePath[j]);
+                    string[] temp = fileInfo.Name.Split(new string[] { fileInfo.Extension }, StringSplitOptions.None);
                     ChangeControl(splitFilePath[j], "上传中", "0");
+                    keyValues.Add(temp[0], 0);
+                    irDir.Add(temp[0], rets);
                     //上传结果封装到委托
                     tempChange tc = new tempChange(UpdateResult);
                     //启动上传结果处理的异步委托
                     tc.BeginInvoke(mcs[j], ret[j], splitFilePath[j], time[j], j, null, null);
-
+                  
                     int taskNumber = Convert.ToInt32(taskComboBox.Text);
                     //同时进行最大任务数
                     while (mcsTmp.Count >= taskNumber)
@@ -193,7 +232,8 @@ namespace UpLoad
             }
             time.Reset();
             //标志文件以及上传完成
-            flags[index] = 1;
+            if(index != -1)
+                flags[index] = 1;
             return true;
         }
 
@@ -212,6 +252,7 @@ namespace UpLoad
                 if (item.label1.Text == temp[0])
                 {
                     item.label2.Text = text;
+                    item.extraText.Text = name;
                     if (time != "0")
                         item.label3.Text = "耗时: " + time + " 秒";
                     break;
@@ -246,11 +287,11 @@ namespace UpLoad
                 {
                     panel1.Controls.Add(cb);
                 }));
-                y += cb.Height + 8;
+                y += cb.Height + 6;
             }
         }
 
-     
+
         /// <summary>
         /// 进度条刷新
         /// </summary>
@@ -335,7 +376,7 @@ namespace UpLoad
             FileInfo fileInfo = new FileInfo(file);
             string[] temp = fileInfo.Name.Split(new string[] { fileInfo.Extension }, StringSplitOptions.None);
             //存放路径
-            string splitFileFormat = splitFileSavePath + @"\" +temp[0] + "_tmp{0}" + fileInfo.Extension;
+            string splitFileFormat = splitFileSavePath + @"\" + temp[0] + "_tmp{0}" + fileInfo.Extension;
             //确定需要分割文件大小的单位
             int splitMinFileSize = 0;
             if (unitComboBox.Text == "M")
@@ -351,10 +392,10 @@ namespace UpLoad
             else if (unitMinComboBox.Text == "KB")
                 splitFileSize = Convert.ToInt32(splitFileSizeText.Text) * unitKB;
             else if (unitMinComboBox.Text == "G")
-                splitFileSize = Convert.ToInt32(splitFileSizeText.Text) * unitG; 
+                splitFileSize = Convert.ToInt32(splitFileSizeText.Text) * unitG;
             List<string> splitFilePath = new List<string>();
             if (fileInfo.Length < splitMinFileSize)
-            { 
+            {
                 return null;  //不需要分割
             }
             int steps = (int)(fileInfo.Length / splitFileSize);
@@ -435,6 +476,76 @@ namespace UpLoad
             }
         }
 
+        public void PauseUpdate(string name)
+        {
+            foreach (UserControl1 item in panel1.Controls)
+            {
+                if (item.label1.Text == name)
+                {
+                    if (irDir.TryGetValue(name, out IAsyncResult ir))
+                    {
+                        item.label2.Text = "任务暂停";
+                        keyValues[name] = 1;
+                        break;
+                    }
+                    else
+                    {
+                        item.label2.Text = "任务暂停";
+                        break;
+                    }
+                }
+            } 
+        }
+
+        public void ContinueUpdate(string name)
+        {
+            foreach (UserControl1 item in panel1.Controls)
+            {
+                if (item.label1.Text == name)
+                {
+                    if (irDir.TryGetValue(name, out IAsyncResult ir))
+                    {
+                        item.label2.Text = "上传中";
+                        keyValues[name] = 0;
+                        return;
+                    }
+                    else
+                    {
+                        item.label2.Text = "等待中";
+                        return;
+                    }
+                }
+            } 
+        }
+
+        public void ResetUpdate(string name,string path)
+        {
+            if (irDir.TryGetValue(name, out IAsyncResult ir))
+            {
+                if (ir.IsCompleted)
+                {
+                    Action<UserControl1, int, int> updateProgress = progressBarShow;
+                    MethodCaller mc = new MethodCaller(FTPHelper.FtpUploadBroken);
+                    //启动上传的异步委托
+                    IAsyncResult rets = mc.BeginInvoke(path, pathStr1, updateProgress, null, null);
+                    Stopwatch time = new Stopwatch();
+                    time.Start();
+                    tempChange tc = new tempChange(UpdateResult);
+                    tc.BeginInvoke(mc, rets, path, time, -1 , null, null);
+                }
+            }
+
+            foreach (UserControl1 item in panel1.Controls)
+            {
+                if (item.label1.Text == name)
+                {
+                    item.label2.Text = "上传中";
+                    break;
+                }
+            }
+            keyValues[name] = 2;
+        }
+
         /// <summary>
         /// 合并文件,测试用
         /// </summary>
@@ -442,15 +553,12 @@ namespace UpLoad
         /// <param name="e"></param>
         private void Button3_Click(object sender, EventArgs e)
         {
-            Graphics g = button3.CreateGraphics();
-            PaintEventArgs pe = new PaintEventArgs(g, button3.ClientRectangle);
-            Rectangle myRectangle = new Rectangle(0, 0, button3.Width, button3.Height);
-            ControlPaint.DrawBorder(pe.Graphics, myRectangle,
-                Color.Red, 6, ButtonBorderStyle.Solid,
-                Color.Red, 6, ButtonBorderStyle.Solid,
-                Color.Red, 6, ButtonBorderStyle.Solid,
-                Color.Red, 6, ButtonBorderStyle.Solid
-            );
+            var ret = ReadYaml();
+            MessageBox.Show(ret.serverIP);
+            ret.serverIP = "hzy";
+            SetYaml(ret);
+            var rets = ReadYaml();
+            MessageBox.Show(ret.serverIP);
             //string url = "D:/TestHzy/" + pathStr1 + "/";
             //var filePaths = Directory.GetFiles(url);
             //string combineFilePath = "";
@@ -466,17 +574,42 @@ namespace UpLoad
             //MessageBox.Show("合并完成!");
         }
 
-        private void UserControl11_MouseHover(object sender, EventArgs e)
+        private void Button4_MouseHover(object sender, EventArgs e)
         {
-            Graphics g = this.CreateGraphics();
-            PaintEventArgs pe = new PaintEventArgs(g, this.ClientRectangle);
-            Rectangle myRectangle = new Rectangle(0, 0, this.Width, this.Height);
-            ControlPaint.DrawBorder(pe.Graphics, myRectangle,
-                Color.Gray, 2, ButtonBorderStyle.Solid,
-                Color.Gray, 2, ButtonBorderStyle.Solid,
-                Color.Gray, 2, ButtonBorderStyle.Solid,
-                Color.Gray, 2, ButtonBorderStyle.Solid
-            );
+            ToolTip p = new ToolTip();
+            p.ShowAlways = true;
+            p.SetToolTip(button4, "全部开始");
+        }
+
+        private void ButtonEx1_MouseHover(object sender, EventArgs e)
+        {
+            ToolTip p = new ToolTip();
+            p.ShowAlways = true;
+            p.SetToolTip(buttonEx1, "全部暂停");
+        }
+
+        private void Button4_Click(object sender, EventArgs e)
+        {
+            foreach (UserControl1 item in panel1.Controls)
+            {
+                if (item.停止ToolStripMenuItem.Text == "继续")
+                {
+                    ContinueUpdate(item.label1.Text);
+                    item.停止ToolStripMenuItem.Text = "暂停";
+                }
+            }
+        }
+
+        private void ButtonEx1_Click(object sender, EventArgs e)
+        {
+            foreach (UserControl1 item in panel1.Controls)
+            {
+                if (item.停止ToolStripMenuItem.Text == "暂停")
+                {
+                    PauseUpdate(item.label1.Text);
+                    item.停止ToolStripMenuItem.Text = "继续";
+                }
+            }
         }
     }
 }

@@ -1,4 +1,3 @@
-C:\Users\zh96637\source\repos\UpLoad\UpLoad\bin\Debug\UpLoad.exe.config
 C:\Users\zh96637\source\repos\UpLoad\UpLoad\bin\Debug\UpLoad.exe
 C:\Users\zh96637\source\repos\UpLoad\UpLoad\bin\Debug\UpLoad.pdb
 C:\Users\zh96637\source\repos\UpLoad\UpLoad\obj\Debug\UpLoad.csprojAssemblyReference.cache
@@ -20,3 +19,6 @@ E:\Work\FtpUpLoad\UpLoad\obj\Debug\UpLoad.exe
 E:\Work\FtpUpLoad\UpLoad\obj\Debug\UpLoad.pdb
 E:\Work\FtpUpLoad\UpLoad\obj\Debug\UpLoad.UserControl1.resources
 C:\Users\zh96637\source\repos\UpLoad\UpLoad\obj\Debug\UpLoad.UserControl1.resources
+C:\Users\zh96637\source\repos\UpLoad\UpLoad\bin\Debug\YamlDotNet.dll
+C:\Users\zh96637\source\repos\UpLoad\UpLoad\bin\Debug\YamlDotNet.xml
+C:\Users\zh96637\source\repos\UpLoad\UpLoad\obj\Debug\UpLoad.csproj.CopyComplete

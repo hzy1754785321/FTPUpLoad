@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,6 +11,27 @@ using System.Windows.Forms;
 
 namespace UpLoad
 {
+
+    public class ButtonEx : Button
+    {
+        protected override void OnPaint(System.Windows.Forms.PaintEventArgs e)
+        {
+            GraphicsPath gPath = new GraphicsPath();
+            // 绘制椭圆形区域
+            gPath.AddEllipse(0, 0, this.ClientSize.Width, this.ClientSize.Height);
+
+            // 将区域赋值给Region
+            this.Region = new System.Drawing.Region(gPath);
+
+            base.OnPaint(e);
+            //base.OnPaint(e);
+            //System.Drawing.Drawing2D.GraphicsPath path = new System.Drawing.Drawing2D.GraphicsPath();
+            //path.AddEllipse(0, 0, this.Width, this.Height);
+            //this.Region = new Region(path);
+
+        }
+    }
+
     public partial class MyProgressBar : ProgressBar
     {
         public MyProgressBar()

@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace UpLoad
@@ -68,7 +69,7 @@ namespace UpLoad
                     return true;
                 }
             }
-            long startbye = startfilesize;
+indexer:            long startbye = startfilesize;
             //更新进度
             //if (updateProgress != null && userControl != null)
             //{
@@ -117,6 +118,16 @@ namespace UpLoad
                 // 流内容没有结束 
                 while (contentLen != 0)
                 {
+                    while (Form1.keyValues[replaceFileName] == 1)
+                    {
+                        Thread.Sleep(1000);
+                    }
+                    if (Form1.keyValues[replaceFileName] == 2)
+                    {
+                        Form1.keyValues[replaceFileName] = 0;
+                        startfilesize = 0;
+                        goto indexer;
+                    }
                     // 把内容从file stream 写入 upload stream 
                     strm.Write(buff, 0, contentLen);
                     contentLen = fs.Read(buff, 0, buffLength);

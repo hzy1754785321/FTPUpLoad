@@ -1,0 +1,8 @@
+serverIP: ''
+remotePath: ''
+ftpUser: ''
+ftpPasswd: ''
+splitePath: ''
+spliteMin: 600
+spliteFile: 200
+confirmSplit: true

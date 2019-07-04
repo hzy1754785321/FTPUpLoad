@@ -55,6 +55,7 @@ namespace UpLoad
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.停止ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.重新开始ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.extraText = new System.Windows.Forms.Label();
             this.progressBar1 = new UpLoad.MyProgressBar();
             this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -99,13 +100,24 @@ namespace UpLoad
             // 
             this.停止ToolStripMenuItem.Name = "停止ToolStripMenuItem";
             this.停止ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.停止ToolStripMenuItem.Text = "停止";
+            this.停止ToolStripMenuItem.Text = "暂停";
+            this.停止ToolStripMenuItem.Click += new System.EventHandler(this.停止ToolStripMenuItem_Click);
             // 
             // 重新开始ToolStripMenuItem
             // 
             this.重新开始ToolStripMenuItem.Name = "重新开始ToolStripMenuItem";
             this.重新开始ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.重新开始ToolStripMenuItem.Text = "重发";
+            this.重新开始ToolStripMenuItem.Click += new System.EventHandler(this.重新开始ToolStripMenuItem_Click);
+            // 
+            // extraText
+            // 
+            this.extraText.AutoSize = true;
+            this.extraText.Location = new System.Drawing.Point(498, 24);
+            this.extraText.Name = "extraText";
+            this.extraText.Size = new System.Drawing.Size(0, 12);
+            this.extraText.TabIndex = 4;
+            this.extraText.Visible = false;
             // 
             // progressBar1
             // 
@@ -124,6 +136,7 @@ namespace UpLoad
             this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
+            this.Controls.Add(this.extraText);
             this.Name = "UserControl1";
             this.Size = new System.Drawing.Size(587, 36);
             this.MouseEnter += new System.EventHandler(this.UserControl1_MouseHover);
@@ -141,7 +154,8 @@ namespace UpLoad
         public MyProgressBar progressBar1;
         public Label label3;
         private ContextMenuStrip contextMenuStrip1;
-        private ToolStripMenuItem 停止ToolStripMenuItem;
-        private ToolStripMenuItem 重新开始ToolStripMenuItem;
+        public Label extraText;
+        public ToolStripMenuItem 停止ToolStripMenuItem;
+        public ToolStripMenuItem 重新开始ToolStripMenuItem;
     }
 }

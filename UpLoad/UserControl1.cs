@@ -48,6 +48,25 @@ namespace UpLoad
             isRefresh = false;
         }
 
+        public void 停止ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (停止ToolStripMenuItem.Text == "继续")
+            {
+                Form1.form1.ContinueUpdate(this.label1.Text);
+                停止ToolStripMenuItem.Text = "暂停";
+            }
+            else if (停止ToolStripMenuItem.Text == "暂停")
+            {
+                Form1.form1.PauseUpdate(this.label1.Text);
+                停止ToolStripMenuItem.Text = "继续";
+            }
+        }
+
+        public void 重新开始ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Form1.form1.ResetUpdate(this.label1.Text,extraText.Text);
+        }
+
         //private void UserControl1_Click(object sender, EventArgs e)
         //{
         //    Graphics g = CreateGraphics();

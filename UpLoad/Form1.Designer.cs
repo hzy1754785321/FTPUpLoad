@@ -41,6 +41,7 @@ namespace UpLoad
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.Uploadbutton = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
@@ -68,6 +69,8 @@ namespace UpLoad
             this.label2 = new System.Windows.Forms.Label();
             this.FtpUserText = new System.Windows.Forms.TextBox();
             this.ftpPasswdText = new System.Windows.Forms.TextBox();
+            this.button4 = new UpLoad.ButtonEx();
+            this.buttonEx1 = new UpLoad.ButtonEx();
             this.SuspendLayout();
             // 
             // Uploadbutton
@@ -306,11 +309,43 @@ namespace UpLoad
             this.ftpPasswdText.Size = new System.Drawing.Size(139, 21);
             this.ftpPasswdText.TabIndex = 32;
             // 
+            // button4
+            // 
+            this.button4.BackColor = System.Drawing.Color.Transparent;
+            this.button4.FlatAppearance.BorderSize = 0;
+            this.button4.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.button4.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button4.Image = ((System.Drawing.Image)(resources.GetObject("button4.Image")));
+            this.button4.Location = new System.Drawing.Point(538, 60);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(40, 40);
+            this.button4.TabIndex = 33;
+            this.button4.UseVisualStyleBackColor = false;
+            this.button4.Click += new System.EventHandler(this.Button4_Click);
+            this.button4.MouseHover += new System.EventHandler(this.Button4_MouseHover);
+            // 
+            // buttonEx1
+            // 
+            this.buttonEx1.BackColor = System.Drawing.Color.Transparent;
+            this.buttonEx1.FlatAppearance.BorderSize = 0;
+            this.buttonEx1.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.buttonEx1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.buttonEx1.Image = ((System.Drawing.Image)(resources.GetObject("buttonEx1.Image")));
+            this.buttonEx1.Location = new System.Drawing.Point(538, 113);
+            this.buttonEx1.Name = "buttonEx1";
+            this.buttonEx1.Size = new System.Drawing.Size(40, 40);
+            this.buttonEx1.TabIndex = 34;
+            this.buttonEx1.UseVisualStyleBackColor = false;
+            this.buttonEx1.Click += new System.EventHandler(this.ButtonEx1_Click);
+            this.buttonEx1.MouseHover += new System.EventHandler(this.ButtonEx1_MouseHover);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(623, 557);
+            this.Controls.Add(this.buttonEx1);
+            this.Controls.Add(this.button4);
             this.Controls.Add(this.ftpPasswdText);
             this.Controls.Add(this.FtpUserText);
             this.Controls.Add(this.label2);
@@ -373,6 +408,8 @@ namespace UpLoad
         private Label label2;
         private TextBox FtpUserText;
         private TextBox ftpPasswdText;
+        private ButtonEx button4;
+        private ButtonEx buttonEx1;
     }
 }
 
