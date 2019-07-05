@@ -1,8 +1,9 @@
-serverIP: ''
+serverIP: 192.168.238.1
 remotePath: ''
 ftpUser: ''
 ftpPasswd: ''
-splitePath: ''
+splitePath: D:\Test\Copy
 spliteMin: 600
 spliteFile: 200
+taskComboBoxIndex: 2
 confirmSplit: true

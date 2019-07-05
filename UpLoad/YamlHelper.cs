@@ -17,7 +17,12 @@ namespace UpLoad
             _filePath = filePath;
         }
 
-        public static void Serializer<T>(T obj)            // 序列化操作  
+        /// <summary>
+        /// 将对象序列化为yaml
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj"></param>
+        public static void Serializer<T>(T obj)
         {
             StreamWriter yamlWriter = File.CreateText(_filePath);
             Serializer yamlSerializer = new Serializer();
@@ -25,7 +30,12 @@ namespace UpLoad
             yamlWriter.Close();
         }
 
-        static public T Deserializer<T>()           // 泛型反序列化操作  
+        /// <summary>
+        /// 将yaml反序列为对象
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        static public T Deserializer<T>()
         {
             if (!File.Exists(_filePath))
             {
@@ -34,7 +44,6 @@ namespace UpLoad
             StreamReader yamlReader = File.OpenText(_filePath);
             Deserializer yamlDeserializer = new Deserializer();
 
-            //读取持久化对象  
             T info = yamlDeserializer.Deserialize<T>(yamlReader);
             yamlReader.Close();
             return info;

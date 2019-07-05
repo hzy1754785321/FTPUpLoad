@@ -69,8 +69,8 @@ namespace UpLoad
             this.label2 = new System.Windows.Forms.Label();
             this.FtpUserText = new System.Windows.Forms.TextBox();
             this.ftpPasswdText = new System.Windows.Forms.TextBox();
-            this.button4 = new UpLoad.ButtonEx();
             this.buttonEx1 = new UpLoad.ButtonEx();
+            this.button4 = new UpLoad.ButtonEx();
             this.SuspendLayout();
             // 
             // Uploadbutton
@@ -135,6 +135,7 @@ namespace UpLoad
             this.taskComboBox.Name = "taskComboBox";
             this.taskComboBox.Size = new System.Drawing.Size(53, 20);
             this.taskComboBox.TabIndex = 11;
+            this.taskComboBox.SelectionChangeCommitted += new System.EventHandler(this.TaskComboBox_SelectionChangeCommitted);
             // 
             // taskNumLaber
             // 
@@ -190,6 +191,7 @@ namespace UpLoad
             this.ConfirmSplit.TabIndex = 18;
             this.ConfirmSplit.Text = "启用文件分割";
             this.ConfirmSplit.UseVisualStyleBackColor = true;
+            this.ConfirmSplit.CheckedChanged += new System.EventHandler(this.ConfirmSplit_CheckedChanged);
             // 
             // splitMinFileSizeText
             // 
@@ -198,6 +200,7 @@ namespace UpLoad
             this.splitMinFileSizeText.Size = new System.Drawing.Size(44, 21);
             this.splitMinFileSizeText.TabIndex = 19;
             this.splitMinFileSizeText.Text = "600";
+            this.splitMinFileSizeText.TextChanged += new System.EventHandler(this.SplitMinFileSizeText_TextChanged);
             // 
             // splitMinFileSizeLaber
             // 
@@ -216,6 +219,7 @@ namespace UpLoad
             this.unitComboBox.Name = "unitComboBox";
             this.unitComboBox.Size = new System.Drawing.Size(48, 20);
             this.unitComboBox.TabIndex = 21;
+            this.unitComboBox.SelectionChangeCommitted += new System.EventHandler(this.UnitComboBox_SelectionChangeCommitted);
             // 
             // splitFileSizeLaber
             // 
@@ -233,6 +237,7 @@ namespace UpLoad
             this.splitFileSizeText.Size = new System.Drawing.Size(44, 21);
             this.splitFileSizeText.TabIndex = 23;
             this.splitFileSizeText.Text = "200";
+            this.splitFileSizeText.Validated += new System.EventHandler(this.SplitFileSizeText_Validated);
             // 
             // unitMinComboBox
             // 
@@ -242,6 +247,7 @@ namespace UpLoad
             this.unitMinComboBox.Name = "unitMinComboBox";
             this.unitMinComboBox.Size = new System.Drawing.Size(48, 20);
             this.unitMinComboBox.TabIndex = 24;
+            this.unitMinComboBox.SelectionChangeCommitted += new System.EventHandler(this.UnitMinComboBox_SelectionChangeCommitted);
             // 
             // ftpIPLaber
             // 
@@ -267,6 +273,7 @@ namespace UpLoad
             this.ftpIPText.Name = "ftpIPText";
             this.ftpIPText.Size = new System.Drawing.Size(172, 21);
             this.ftpIPText.TabIndex = 27;
+            this.ftpIPText.Validated += new System.EventHandler(this.FtpIPText_Validated);
             // 
             // ftpRemoteText
             // 
@@ -275,6 +282,7 @@ namespace UpLoad
             this.ftpRemoteText.Size = new System.Drawing.Size(172, 21);
             this.ftpRemoteText.TabIndex = 28;
             this.ftpRemoteText.Text = "data";
+            this.ftpRemoteText.Validated += new System.EventHandler(this.FtpRemoteText_Validated);
             // 
             // label1
             // 
@@ -300,6 +308,7 @@ namespace UpLoad
             this.FtpUserText.Name = "FtpUserText";
             this.FtpUserText.Size = new System.Drawing.Size(139, 21);
             this.FtpUserText.TabIndex = 31;
+            this.FtpUserText.TextChanged += new System.EventHandler(this.FtpUserText_TextChanged);
             // 
             // ftpPasswdText
             // 
@@ -308,21 +317,7 @@ namespace UpLoad
             this.ftpPasswdText.PasswordChar = '*';
             this.ftpPasswdText.Size = new System.Drawing.Size(139, 21);
             this.ftpPasswdText.TabIndex = 32;
-            // 
-            // button4
-            // 
-            this.button4.BackColor = System.Drawing.Color.Transparent;
-            this.button4.FlatAppearance.BorderSize = 0;
-            this.button4.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
-            this.button4.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button4.Image = ((System.Drawing.Image)(resources.GetObject("button4.Image")));
-            this.button4.Location = new System.Drawing.Point(538, 60);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(40, 40);
-            this.button4.TabIndex = 33;
-            this.button4.UseVisualStyleBackColor = false;
-            this.button4.Click += new System.EventHandler(this.Button4_Click);
-            this.button4.MouseHover += new System.EventHandler(this.Button4_MouseHover);
+            this.ftpPasswdText.TextChanged += new System.EventHandler(this.FtpPasswdText_TextChanged);
             // 
             // buttonEx1
             // 
@@ -338,6 +333,21 @@ namespace UpLoad
             this.buttonEx1.UseVisualStyleBackColor = false;
             this.buttonEx1.Click += new System.EventHandler(this.ButtonEx1_Click);
             this.buttonEx1.MouseHover += new System.EventHandler(this.ButtonEx1_MouseHover);
+            // 
+            // button4
+            // 
+            this.button4.BackColor = System.Drawing.Color.Transparent;
+            this.button4.FlatAppearance.BorderSize = 0;
+            this.button4.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.button4.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button4.Image = ((System.Drawing.Image)(resources.GetObject("button4.Image")));
+            this.button4.Location = new System.Drawing.Point(538, 60);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(40, 40);
+            this.button4.TabIndex = 33;
+            this.button4.UseVisualStyleBackColor = false;
+            this.button4.Click += new System.EventHandler(this.Button4_Click);
+            this.button4.MouseHover += new System.EventHandler(this.Button4_MouseHover);
             // 
             // Form1
             // 

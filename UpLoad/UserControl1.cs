@@ -29,7 +29,6 @@ namespace UpLoad
                     Color.Gray, 2, ButtonBorderStyle.Solid,
                     Color.Gray, 2, ButtonBorderStyle.Solid
                 );
-            
         }
 
         private void UserControl1_MouseLeave(object sender, EventArgs e)
@@ -67,44 +66,6 @@ namespace UpLoad
             Form1.form1.ResetUpdate(this.label1.Text,extraText.Text);
         }
 
-        //private void UserControl1_Click(object sender, EventArgs e)
-        //{
-        //    Graphics g = CreateGraphics();
-        //    PaintEventArgs pe = new PaintEventArgs(g, ClientRectangle);
-        //    Rectangle myRectangle = new Rectangle(0, 0, Width, Height);
-        //    ControlPaint.DrawBorder(pe.Graphics, myRectangle,
-        //        Color.DeepSkyBlue, 3, ButtonBorderStyle.Solid,
-        //        Color.DeepSkyBlue, 3, ButtonBorderStyle.Solid,
-        //        Color.DeepSkyBlue, 3, ButtonBorderStyle.Solid,
-        //        Color.DeepSkyBlue, 3, ButtonBorderStyle.Solid
-        //    );
-        //}
-
-        //private void UserControl1_Leave(object sender, EventArgs e)
-        //{
-        //    this.Refresh();
-        //}
-
-
-        //private void UserControl1_MouseEnter(object sender, EventArgs e)
-        //{
-        //    this.BorderStyle = BorderStyle.FixedSingle;
-        //}
-
-        //private void UserControl1_MouseLeave(object sender, EventArgs e)
-        //{
-        //    this.BorderStyle = BorderStyle.None;
-        //}
-
-        //private void UserControl1_MouseMove(object sender, MouseEventArgs e)
-        //{
-        //    this.BorderStyle = BorderStyle.FixedSingle;
-        //}
-
-        //private void ContextMenuStrip1_Opening(object sender, CancelEventArgs e)
-        //{
-        //    this.BorderStyle = BorderStyle.FixedSingle;
-        //}
-    }
+     }
 
 }

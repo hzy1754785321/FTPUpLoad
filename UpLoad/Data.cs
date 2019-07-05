@@ -19,9 +19,9 @@ namespace UpLoad
         //分割文件路径
         public string splitePath = "";
         //文件多大需要切割
-        public int spliteMin = 600;
+        public string spliteMin = "";
         //每个文件最大上限 
-        public int spliteFile = 200;
+        public string spliteFile = "";
         //spliteMin的单位索引
         public int unitComboBoxIndex = 0;
         //spliteFile的单位索引

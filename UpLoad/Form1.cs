@@ -67,7 +67,6 @@ namespace UpLoad
 
         private void SetYaml(Setting setting)
         {
-            YamlHelper.SetFilePath(yamlPath);
             YamlHelper.Serializer(setting);
         }
 
@@ -95,6 +94,8 @@ namespace UpLoad
             FTPHelper.FtpPassword = setting.ftpPasswd;
             pathStr1 = setting.remotePath;
             ftpIPText.Text = setting.serverIP;
+            splitMinFileSizeText.Text = setting.spliteMin;
+            splitFileSizeText.Text = setting.spliteFile;
         }
 
         /// <summary>
@@ -151,7 +152,7 @@ namespace UpLoad
                     time[j].Start();
                     //上传封装到委托
                     MethodCaller mc = new MethodCaller(FTPHelper.FtpUploadBroken);
-                    mcs.Add(mc);                      
+                    mcs.Add(mc);
                     mcsTmp.Add(mc);
                     //启动上传的异步委托
                     IAsyncResult rets = mcs[j].BeginInvoke(splitFilePath[j], pathStr1, updateProgress, null, null);
@@ -165,7 +166,7 @@ namespace UpLoad
                     tempChange tc = new tempChange(UpdateResult);
                     //启动上传结果处理的异步委托
                     tc.BeginInvoke(mcs[j], ret[j], splitFilePath[j], time[j], j, null, null);
-                  
+
                     int taskNumber = Convert.ToInt32(taskComboBox.Text);
                     //同时进行最大任务数
                     while (mcsTmp.Count >= taskNumber)
@@ -225,6 +226,7 @@ namespace UpLoad
             if (result)
             {
                 ChangeControl(splitPath, "上传成功", time.Elapsed.TotalSeconds.ToString("f2"));
+                File.Delete(splitPath);
             }
             else
             {
@@ -232,7 +234,7 @@ namespace UpLoad
             }
             time.Reset();
             //标志文件以及上传完成
-            if(index != -1)
+            if (index != -1)
                 flags[index] = 1;
             return true;
         }
@@ -361,10 +363,13 @@ namespace UpLoad
                 this.Invoke(new EventHandler(delegate
                 {
                     FolderBrowserDialog P_File_Folder = new FolderBrowserDialog();
+                    P_File_Folder.SelectedPath = settingCache.splitePath;
                     P_File_Folder.Description = "请选择保存文件夹";
                     if (P_File_Folder.ShowDialog() == DialogResult.OK)
                     {
                         splitFileSavePath = P_File_Folder.SelectedPath;
+                        settingCache.splitePath = splitFileSavePath;
+                        SetYaml(settingCache);
                     }
                     else
                     {
@@ -469,10 +474,12 @@ namespace UpLoad
         {
             FolderBrowserDialog P_File_Folder = new FolderBrowserDialog();
             P_File_Folder.Description = "请选择保存文件夹";
+            P_File_Folder.SelectedPath = settingCache.splitePath;
             if (P_File_Folder.ShowDialog() == DialogResult.OK)
             {
-                MessageBox.Show(P_File_Folder.SelectedPath);
                 splitFileSavePath = P_File_Folder.SelectedPath;
+                settingCache.splitePath = splitFileSavePath;
+                SetYaml(settingCache);
             }
         }
 
@@ -494,7 +501,7 @@ namespace UpLoad
                         break;
                     }
                 }
-            } 
+            }
         }
 
         public void ContinueUpdate(string name)
@@ -515,10 +522,10 @@ namespace UpLoad
                         return;
                     }
                 }
-            } 
+            }
         }
 
-        public void ResetUpdate(string name,string path)
+        public void ResetUpdate(string name, string path)
         {
             if (irDir.TryGetValue(name, out IAsyncResult ir))
             {
@@ -531,7 +538,7 @@ namespace UpLoad
                     Stopwatch time = new Stopwatch();
                     time.Start();
                     tempChange tc = new tempChange(UpdateResult);
-                    tc.BeginInvoke(mc, rets, path, time, -1 , null, null);
+                    tc.BeginInvoke(mc, rets, path, time, -1, null, null);
                 }
             }
 
@@ -553,12 +560,6 @@ namespace UpLoad
         /// <param name="e"></param>
         private void Button3_Click(object sender, EventArgs e)
         {
-            var ret = ReadYaml();
-            MessageBox.Show(ret.serverIP);
-            ret.serverIP = "hzy";
-            SetYaml(ret);
-            var rets = ReadYaml();
-            MessageBox.Show(ret.serverIP);
             //string url = "D:/TestHzy/" + pathStr1 + "/";
             //var filePaths = Directory.GetFiles(url);
             //string combineFilePath = "";
@@ -610,6 +611,66 @@ namespace UpLoad
                     item.停止ToolStripMenuItem.Text = "继续";
                 }
             }
+        }
+
+        private void FtpIPText_Validated(object sender, EventArgs e)
+        {
+            settingCache.serverIP = ftpIPText.Text;
+            SetYaml(settingCache);
+        }
+
+        private void FtpRemoteText_Validated(object sender, EventArgs e)
+        {
+            settingCache.remotePath = ftpRemoteText.Text;
+            SetYaml(settingCache);
+        }
+
+        private void FtpUserText_TextChanged(object sender, EventArgs e)
+        {
+            settingCache.ftpUser = FtpUserText.Text;
+            SetYaml(settingCache);
+        }
+
+        private void FtpPasswdText_TextChanged(object sender, EventArgs e)
+        {
+            settingCache.ftpPasswd = ftpPasswdText.Text;
+            SetYaml(settingCache);
+        }
+
+        private void SplitMinFileSizeText_TextChanged(object sender, EventArgs e)
+        {
+            settingCache.spliteMin = splitMinFileSizeText.Text;
+            SetYaml(settingCache);
+        }
+
+        private void SplitFileSizeText_Validated(object sender, EventArgs e)
+        {
+            settingCache.spliteFile = splitFileSizeText.Text;
+            SetYaml(settingCache);
+        }
+
+        private void ConfirmSplit_CheckedChanged(object sender, EventArgs e)
+        {
+            settingCache.confirmSplit = ConfirmSplit.Checked;
+            SetYaml(settingCache);
+        }
+
+        private void UnitMinComboBox_SelectionChangeCommitted(object sender, EventArgs e)
+        {
+            settingCache.unitMinComboBoxIndex = unitMinComboBox.SelectedIndex;
+            SetYaml(settingCache);
+        }
+
+        private void UnitComboBox_SelectionChangeCommitted(object sender, EventArgs e)
+        {
+            settingCache.unitComboBoxIndex = unitComboBox.SelectedIndex;
+            SetYaml(settingCache);
+        }
+
+        private void TaskComboBox_SelectionChangeCommitted(object sender, EventArgs e)
+        {
+            settingCache.taskComboBoxIndex = taskComboBox.SelectedIndex;
+            SetYaml(settingCache);
         }
     }
 }
